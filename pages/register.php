@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Test Author Registration</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <h2>Manual Author API Test</h2>
+    <button id="register-btn">Test Register</button>
+    <script>
+    document.getElementById('register-btn').onclick = async () => {
+        try {
+            const res = await axios.post('../api/author_api.php', {
+                email: 'test@gmail.com',
+                username: 'test',
+                password: '123'
+            }, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            console.log(res.data);
+            alert(JSON.stringify(res.data));
+        } catch (err) {
+            if (err.response?.data?.error) {
+                alert('Error: ' + err.response.data.error);
+            } else {
+                alert('Server error');
+            }
+        }
+    };
+    </script>
+</body>
+
+</html>
