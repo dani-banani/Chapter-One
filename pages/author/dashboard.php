@@ -1,10 +1,5 @@
 <?php
-session_start();
-if (!isset($_SESSION['author_id'])) {
-    header('Location: ../login.php');
-    exit;
-}
-$authorId = $_SESSION['author_id'];
+require_once '../../auth/author.php';
 ?>
 <!DOCTYPE html>
 <html>
@@ -13,13 +8,12 @@ $authorId = $_SESSION['author_id'];
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body>
-    <h2>Welcome, Author</h2>
+    <h2><?php echo "Welcome, Author # ".$authorId; ?></h2>
     <a href="../../auth/logout_author.php" style="color:red">Logout</a>
-
     <h3>Create a New Novel</h3>
     <form id="create-form">
-        <input type="text" id="title"        placeholder="Novel Title"        required><br>
-        <textarea      id="description"  placeholder="Novel Description" required></textarea><br>
+        <input type="text" id="title" placeholder="Novel Title" required><br>
+        <textarea id="description"  placeholder="Novel Description" required></textarea><br>
         <button type="submit">Create</button>
         <p id="create-err" style="color:red"></p>
     </form>
@@ -36,7 +30,6 @@ async function loadNovels() {
     try {
         const { data } = await axios.get(API);
         if (data.error) { box.textContent = data.error; return; }
-
         const mine = data.filter(nv => Number(nv.nv_novel_author_id) === ME);
         box.innerHTML = mine.length
             ? mine.map(nv => `
