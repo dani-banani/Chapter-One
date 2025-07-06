@@ -11,7 +11,7 @@
     <script>
     document.getElementById('register-btn').onclick = async () => {
         try {
-            const res = await axios.post('../api/author_api.php', {
+            const res = await axios.post('../api/author.php', {
                 email: 'test@gmail.com',
                 username: 'test',
                 password: '123'
@@ -29,6 +29,7 @@
                 alert('Server error');
             }
         }
+    alert(res);
     };
     </script>
 </body>
