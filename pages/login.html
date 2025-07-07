@@ -11,7 +11,6 @@
         <button type="submit">Login</button>
         <p id="error-message" style="color: red;"></p>
     </form>
-
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
     document.getElementById('login-form').onsubmit = async (e) => {
@@ -20,14 +19,13 @@
         const password = document.getElementById('password').value;
         const errorBox = document.getElementById('error-message');
         errorBox.textContent = '';
+        console.log('Attempting login with:', { identifier, password });
         try {
             const res = await axios.post('../auth/login_author.php', {
                 identifier,
                 password
-            }, {
-                headers: { 'Content-Type': 'application/json' }
             });
-
+            console.log('Login response:', res);
             if (res.data.success) {
                 window.location.replace('author/dashboard.php');
             }
