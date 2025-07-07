@@ -17,18 +17,19 @@ require_once '../../auth/author.php';
     }
     </style>
 </head>
-
 <body>
     <h2><?php echo "Welcome, Author #{$authorId}"; ?></h2>
     <a href="../../auth/logout_author.php" style="color:red">Logout</a>
 
-    <h3>Create a New Novel</h3>
+    <h3 id="form-title">Create a New Novel</h3>
     <form id="create-form">
+        <input type="hidden" id="novel-id">
         <input type="text" id="title" placeholder="Novel Title" required><br><br>
         <div id="editor">
             <p>Start writing your novel description…</p>
         </div>
-        <button type="submit">Create</button>
+        <button type="submit" id="submit-btn">Create</button>
+        <button type="button" id="cancel-edit" style="display:none" onclick="cancelEdit()">Cancel</button>
         <p id="create-err" style="color:red"></p>
     </form>
     <hr>
@@ -37,17 +38,13 @@ require_once '../../auth/author.php';
     <script>
     const API = '../../api/novel.php';
     const ME = <?= $authorId ?>;
-    const quill = new Quill('#editor', {
-        theme: 'snow'
-    });
-
+    const quill = new Quill('#editor', { theme: 'snow' });
+    let isEditing = false;
     async function loadNovels() {
         const box = document.getElementById('novel-list');
         box.textContent = 'Loading…';
         try {
-            const {
-                data
-            } = await axios.get(API);
+            const { data } = await axios.get(API);
             if (data.error) {
                 box.textContent = data.error;
                 return;
@@ -55,43 +52,84 @@ require_once '../../auth/author.php';
             const mine = data.filter(nv => Number(nv.nv_novel_author_id) === ME);
             box.innerHTML = mine.length ?
                 mine.map(nv => `
-                <div style="border:1px solid #ccc;padding:10px;margin:10px">
-                    <strong>${nv.nv_novel_title}</strong><br>
-                    <div>${nv.nv_novel_description}</div>
-                    <small>Published ${nv.nv_novel_publish_date}</small><br>
-                    <button onclick="deleteNovel(${nv.nv_novel_id})">Delete</button>
-                </div>`).join('') :
+                    <div style="border:1px solid #ccc;padding:10px;margin:10px">
+                        <strong>${nv.nv_novel_title}</strong><br>
+                        <div>${nv.nv_novel_description}</div>
+                        <small>Published ${nv.nv_novel_publish_date}</small><br>
+                        <button onclick="editNovel(${nv.nv_novel_id}, \`${escapeHtml(nv.nv_novel_title)}\`, \`${escapeHtml(nv.nv_novel_description)}\`)">Edit</button>
+                        <button onclick="deleteNovel(${nv.nv_novel_id})">Delete</button>
+                    </div>`).join('') :
                 '<p>No novels yet.</p>';
         } catch (ex) {
             box.textContent = ex.response?.data?.error || 'Error loading novels';
         }
     }
+    function escapeHtml(str) {
+        return str.replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;')
+        .replace(/\r?\n/g, '<br>');
+    }
+    function editNovel(id, title, descHtml) {
+        isEditing = true;
+        document.getElementById('form-title').textContent = 'Edit Novel';
+        document.getElementById('submit-btn').textContent = 'Update';
+        document.getElementById('cancel-edit').style.display = 'inline';
+        document.getElementById('novel-id').value = id;
+        document.getElementById('title').value = title;
+        quill.root.innerHTML = descHtml;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    function cancelEdit() {
+        isEditing = false;
+        document.getElementById('form-title').textContent = 'Create a New Novel';
+        document.getElementById('submit-btn').textContent = 'Create';
+        document.getElementById('cancel-edit').style.display = 'none';
+        document.getElementById('novel-id').value = '';
+        document.getElementById('title').value = '';
+        quill.setContents([]);
+    }
 
     document.getElementById('create-form').onsubmit = async e => {
         e.preventDefault();
+        const id = document.getElementById('novel-id').value;
         const title = document.getElementById('title').value.trim();
+        const descHTML = quill.root.innerHTML.trim();
         const errEl = document.getElementById('create-err');
         errEl.textContent = '';
-        const descHTML = quill.root.innerHTML.trim();
         if (!title || !descHTML) {
             errEl.textContent = 'Both fields required';
             return;
         }
+        const payload = {
+            nv_novel_title: title,
+            nv_novel_description: descHTML
+        };
         try {
-            const res = await axios.post(API, {
-                nv_novel_title: title,
-                nv_novel_description: descHTML
-            }, {
-                headers: {
-                    'Content-Type': 'application/json'
+            if (isEditing) {
+                payload.nv_novel_id = id;
+                const res = await axios.put(API, payload, {
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                if (res.data.success) {
+                    cancelEdit();
+                    loadNovels();
+                } else {
+                    errEl.textContent = res.data.error || 'Update failed';
                 }
-            });
-            if (res.data.success) {
-                document.getElementById('title').value = '';
-                quill.setContents([]);
-                loadNovels();
             } else {
-                errEl.textContent = res.data.error || 'Error';
+                const res = await axios.post(API, payload, {
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                if (res.data.success) {
+                    document.getElementById('title').value = '';
+                    quill.setContents([]);
+                    loadNovels();
+                } else {
+                    errEl.textContent = res.data.error || 'Create failed';
+                }
             }
         } catch (ex) {
             errEl.textContent = ex.response?.data?.error || 'Server error';
