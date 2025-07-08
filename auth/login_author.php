@@ -12,14 +12,15 @@ try {
     $isJson = str_contains($_SERVER['CONTENT_TYPE'] ?? '', 'application/json');
     $data = $isJson ? json_decode(file_get_contents('php://input'), true) : $_POST;
     $identifier = trim($data['identifier'] ?? '');
-    $password   = $data['password'] ?? '';
+    $password = $data['password'] ?? '';
     if ($identifier === '' || $password === '') {
         http_response_code(400);
         echo json_encode(['error' => 'Identifier and password required']);
         exit;
     }
     $stmt = $conn->prepare("SELECT nv_author_id, nv_author_password FROM nv_author WHERE (nv_author_username = ? OR nv_author_email = ?) LIMIT 1");
-    if (!$stmt) throw new Exception('Failed to prepare statement: ' . $conn->error);
+    if (!$stmt)
+        throw new Exception('Failed to prepare statement: ' . $conn->error);
     $stmt->bind_param('ss', $identifier, $identifier);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -28,6 +29,7 @@ try {
         echo json_encode(['error' => 'Invalid credentials']);
         exit;
     }
+
     $author = $result->fetch_assoc();
     if (!password_verify($password, $author['nv_author_password'])) {
         http_response_code(401);

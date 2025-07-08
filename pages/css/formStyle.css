@@ -1,0 +1,64 @@
+body {
+    margin: 0px;
+    font-family: "EB Garamond", serif;
+}
+
+#welcomeTitle {
+    font-size: 3em;
+    text-align: center;
+}
+
+#welcomeText {
+    font-size: 1.3em;
+    text-align: center;
+    margin-bottom: 70px;
+}
+
+#form-container {
+    width: max-content;
+    justify-content: center;
+    margin: auto;
+}
+
+label {
+    font-size: 1.2em;
+}
+
+
+form input[type="text"],
+input[type="password"],
+input[type="submit"] {
+    margin-top: 10px;
+    width: 450px;
+    height: 35px;
+    border-radius: 6px;
+}
+
+input[type="submit"] {
+    height: 40px;
+    font-size: 18px;
+    background-color: rgb(255, 183, 0);
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus {
+    outline: none;
+    border: solid 2px orange;
+}
+
+.error-message {
+    color: red;
+}
+
+#form-wrapper {
+    padding: 50px;
+    width: 700px;
+    justify-self: center;
+    background-color: white;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 100px;
+}
