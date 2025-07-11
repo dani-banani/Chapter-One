@@ -32,7 +32,7 @@
                     <p id="error-message"></p>
                     <input type="submit" value="Sign in">
                 </form>
-                <p>Don't have an account? &nbsp;<a href="pages/register.html">Click here</a></p>
+                <p>Don't have an account? &nbsp;<a href="register.html">Click here</a></p>
             </div>
         </div>
     </main>
@@ -55,7 +55,6 @@
                 });
                 console.log('Login response:', res);
                 if (res.data.success) {
-                    print("logged in.");
                     window.location.replace('author/dashboard.php');
                 }
             } catch (err) {
