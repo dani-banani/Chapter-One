@@ -29,6 +29,15 @@ require_once '../../auth/author.php';
         <div id="editor">
             <p>Start writing your novel description…</p>
         </div>
+        <br>
+        <select id="genre-select">
+            <option disabled selected value="">Select a genre</option>
+        </select>
+        <button type="button" onclick="addGenre()">+ Add Genre</button>
+
+        <ul id="selected-genres" style="list-style:none; padding-left:0; margin-top:10px;"></ul>
+        <input type="hidden" id="selected-genre-ids">
+
         <button type="submit" id="submit-btn">Create</button>
         <button type="button" id="cancel-edit" style="display:none" onclick="cancelEdit()">Cancel</button>
         <p id="create-err" style="color:red"></p>
@@ -39,32 +48,57 @@ require_once '../../auth/author.php';
 
     <script>
         const API = '../../api/novel.php';
+        const GENRE_API = '../../api/genre.php';
         const ME = <?= $authorId ?>;
         const quill = new Quill('#editor', { theme: 'snow' });
         let isEditing = false;
+        let genreList = [];
+        let selectedGenreIds = new Set();
 
         async function loadNovels() {
             const box = document.getElementById('novel-list');
             box.textContent = 'Loading…';
             try {
                 const { data } = await axios.get(`${API}?nv_novel_author_id=${ME}`);
+                console.log("Novel data:", data);
                 if (data.error) {
                     box.textContent = data.error;
                     return;
                 }
+                const genreMap = await loadGenreMap();
+                const genreMapping = await loadAllMappings();
                 box.innerHTML = data.length ?
-                    data.map(nv => `
-                    <div style="border:1px solid #ccc;padding:10px;margin:10px">
-                        <strong>${nv.nv_novel_title}</strong><br>
-                        <div>${nv.nv_novel_description}</div>
-                        <small>Published ${nv.nv_novel_publish_date}</small><br>
-                        <button onclick="editNovel(${nv.nv_novel_id}, \`${escapeHtml(nv.nv_novel_title)}\`, \`${escapeHtml(nv.nv_novel_description)}\`)">Edit</button>
-                        <button onclick="deleteNovel(${nv.nv_novel_id})">Delete</button>
-                    </div>`).join('') :
+                    data.map(nv => {
+                        const novelGenres = genreMapping.filter(m => m.nv_novel_id == nv.nv_novel_id);
+                        const genreNames = novelGenres.map(m => genreMap[m.nv_genre_id]).join(', ');
+                        return `
+                        <div style="border:1px solid #ccc;padding:10px;margin:10px">
+                            <strong>${nv.nv_novel_title}</strong><br>
+                            <div>${nv.nv_novel_description}</div>
+                            <small>Published ${nv.nv_novel_publish_date}</small><br>
+                            <em>Genres: ${genreNames || 'None'}</em><br>
+                            <button onclick="editNovel(${nv.nv_novel_id}, \`${escapeHtml(nv.nv_novel_title)}\`, \`${escapeHtml(nv.nv_novel_description)}\`)">Edit</button>
+                            <button onclick="deleteNovel(${nv.nv_novel_id})">Delete</button>
+                        </div>`;
+                    }).join('') :
                     '<p>No novels yet.</p>';
             } catch (ex) {
                 box.textContent = ex.response?.data?.error || 'Error loading novels';
             }
+        }
+
+        async function loadGenreMap() {
+            const res = await axios.get(GENRE_API + '?list=1');
+            const map = {};
+            for (const g of res.data) {
+                map[g.nv_genre_id] = g.nv_genre_name;
+            }
+            return map;
+        }
+
+        async function loadAllMappings() {
+            const res = await axios.get(GENRE_API + '?all=1');
+            return res.data;
         }
 
         function escapeHtml(str) {
@@ -84,8 +118,29 @@ require_once '../../auth/author.php';
             document.getElementById('novel-id').value = id;
             document.getElementById('title').value = title;
             quill.root.innerHTML = descHtml;
+            selectedGenreIds.clear();
+            document.getElementById('selected-genres').innerHTML = '';
+
+            axios.get(`${GENRE_API}?novel_id=${id}`).then(res => {
+                if (Array.isArray(res.data)) {
+                    for (const g of res.data) {
+                        selectedGenreIds.add(parseInt(g.nv_genre_id));
+                        const li = document.createElement('li');
+                        li.textContent = g.nv_genre_name;
+                        li.dataset.id = g.nv_genre_id;
+                        li.style.cursor = 'pointer';
+                        li.onclick = () => {
+                            selectedGenreIds.delete(parseInt(g.nv_genre_id));
+                            li.remove();
+                        };
+                        document.getElementById('selected-genres').appendChild(li);
+                    }
+                }
+            });
+
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
+
         function cancelEdit() {
             isEditing = false;
             document.getElementById('form-title').textContent = 'Create a New Novel';
@@ -94,6 +149,8 @@ require_once '../../auth/author.php';
             document.getElementById('novel-id').value = '';
             document.getElementById('title').value = '';
             quill.setContents([]);
+            selectedGenreIds.clear();
+            document.getElementById('selected-genres').innerHTML = '';
         }
 
         document.getElementById('create-form').onsubmit = async e => {
@@ -103,14 +160,17 @@ require_once '../../auth/author.php';
             const descHTML = quill.root.innerHTML.trim();
             const errEl = document.getElementById('create-err');
             errEl.textContent = '';
+
             if (!title || !descHTML) {
                 errEl.textContent = 'Both fields required';
                 return;
             }
+
             const payload = {
                 nv_novel_title: title,
                 nv_novel_description: descHTML
             };
+
             try {
                 if (isEditing) {
                     payload.nv_novel_id = id;
@@ -118,6 +178,7 @@ require_once '../../auth/author.php';
                         headers: { 'Content-Type': 'application/json' }
                     });
                     if (res.data.success) {
+                        await syncGenres(id);
                         cancelEdit();
                         loadNovels();
                     } else {
@@ -128,6 +189,7 @@ require_once '../../auth/author.php';
                         headers: { 'Content-Type': 'application/json' }
                     });
                     if (res.data.success) {
+                        await syncGenres(res.data.id);
                         document.getElementById('title').value = '';
                         quill.setContents([]);
                         loadNovels();
@@ -139,6 +201,7 @@ require_once '../../auth/author.php';
                 errEl.textContent = ex.response?.data?.error || 'Server error';
             }
         };
+
         async function deleteNovel(id) {
             if (!confirm('Delete this novel?')) return;
             try {
@@ -148,7 +211,63 @@ require_once '../../auth/author.php';
                 alert(ex.response?.data?.error || 'Delete failed');
             }
         }
+
+        async function loadGenres() {
+            try {
+                const res = await axios.get(GENRE_API + '?list=1');
+                if (Array.isArray(res.data)) {
+                    genreList = res.data;
+                    const select = document.getElementById('genre-select');
+                    select.innerHTML = '<option disabled selected value="">Select a genre</option>';
+                    for (const genre of genreList) {
+                        const opt = document.createElement('option');
+                        opt.value = genre.nv_genre_id;
+                        opt.textContent = genre.nv_genre_name;
+                        select.appendChild(opt);
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to load genres');
+            }
+        }
+
+        function addGenre() {
+            const select = document.getElementById('genre-select');
+            const id = parseInt(select.value);
+            if (!id || selectedGenreIds.has(id)) return;
+
+            selectedGenreIds.add(id);
+            const genre = genreList.find(g => g.nv_genre_id == id);
+            const ul = document.getElementById('selected-genres');
+            const li = document.createElement('li');
+            li.textContent = genre.nv_genre_name;
+            li.dataset.id = id;
+            li.style.cursor = 'pointer';
+            li.onclick = () => {
+                selectedGenreIds.delete(id);
+                li.remove();
+            };
+            ul.appendChild(li);
+        }
+
+        async function syncGenres(novelId) {
+            try {
+                await axios.delete(`${GENRE_API}?novel_id=${novelId}`);
+                for (const genre_id of selectedGenreIds) {
+                    await axios.post(GENRE_API, {
+                        nv_novel_id: novelId,
+                        nv_genre_id: genre_id
+                    }, {
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                }
+            } catch (err) {
+                console.error('Failed to sync genres', err);
+            }
+        }
+
         loadNovels();
+        loadGenres();
     </script>
 </body>
 
