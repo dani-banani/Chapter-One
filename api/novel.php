@@ -23,22 +23,32 @@ $response = match ($method) {
 };
 
 echo json_encode($response);
-
 function getNovel($conn) {
-    $query = "SELECT * FROM nv_novel";
+    $query = "SELECT DISTINCT n.* FROM nv_novel n";
+    $joinGenre = false;
     $conditions = [];
     $params = [];
     $types = '';
     foreach ($_GET as $key => $value) {
-        if (strpos($key, 'nv_novel_') === 0) {
-            $conditions[] = "$key = ?";
-            $params[] = $value;
-            $types .= 's';
+        if ($key === 'genre_id') {
+            $joinGenre = true;
+            $conditions[] = "m.nv_genre_id = ?";
+            $params[] = intval($value);
+            $types .= 'i';
+        } elseif (strpos($key, 'nv_novel_') === 0) {
+            $column = "n.$key";
+            $conditions[] = "$column = ?";
+            $params[] = is_numeric($value) ? intval($value) : $value;
+            $types .= is_numeric($value) ? 'i' : 's';
         }
+    }
+    if ($joinGenre) {
+        $query .= " JOIN nv_novel_genre_mapping m ON n.nv_novel_id = m.nv_novel_id";
     }
     if (!empty($conditions)) {
         $query .= ' WHERE ' . implode(' AND ', $conditions);
     }
+    $query .= " ORDER BY n.nv_novel_id DESC";
     $stmt = $conn->prepare($query);
     if (!$stmt) return ['error' => $conn->error];
     if (!empty($params)) {
@@ -49,9 +59,7 @@ function getNovel($conn) {
     if (!$result) {
         return ['error' => $stmt->error];
     }
-    return $result->num_rows === 1
-        ? $result->fetch_assoc()
-        : $result->fetch_all(MYSQLI_ASSOC);
+    return $result->fetch_all(MYSQLI_ASSOC);
 }
 
 function createNovel($conn, $data) {

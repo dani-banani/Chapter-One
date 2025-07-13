@@ -43,9 +43,13 @@ require_once '../../auth/author.php';
         <p id="create-err" style="color:red"></p>
     </form>
     <hr>
-    <h3>Your Novels</h3>
-    <div id="novel-list">Loading…</div>
 
+    <h3>Your Novels</h3>
+    <label for="filter-genre">Filter by Genre:</label>
+    <select id="filter-genre" onchange="loadNovels()">
+        <option value="">-- All Genres --</option>
+    </select>
+    <div id="novel-list">Loading…</div>
     <script>
         const API = '../../api/novel.php';
         const GENRE_API = '../../api/genre.php';
@@ -54,34 +58,33 @@ require_once '../../auth/author.php';
         let isEditing = false;
         let genreList = [];
         let selectedGenreIds = new Set();
-
+        let filterGenreId = '';
         async function loadNovels() {
             const box = document.getElementById('novel-list');
             box.textContent = 'Loading…';
+            const genreDropdown = document.getElementById('filter-genre');
+            filterGenreId = genreDropdown.value;
+            const params = new URLSearchParams({ nv_novel_author_id: ME });
+            if (filterGenreId) params.append('genre_id', filterGenreId);
             try {
-                const { data } = await axios.get(`${API}?nv_novel_author_id=${ME}`);
-                console.log("Novel data:", data);
-                if (data.error) {
-                    box.textContent = data.error;
-                    return;
-                }
+                const { data } = await axios.get(`${API}?${params.toString()}`);
                 const genreMap = await loadGenreMap();
                 const genreMapping = await loadAllMappings();
-                box.innerHTML = data.length ?
-                    data.map(nv => {
+                box.innerHTML = data.length
+                    ? data.map(nv => {
                         const novelGenres = genreMapping.filter(m => m.nv_novel_id == nv.nv_novel_id);
                         const genreNames = novelGenres.map(m => genreMap[m.nv_genre_id]).join(', ');
                         return `
-                        <div style="border:1px solid #ccc;padding:10px;margin:10px">
-                            <strong>${nv.nv_novel_title}</strong><br>
-                            <div>${nv.nv_novel_description}</div>
-                            <small>Published ${nv.nv_novel_publish_date}</small><br>
-                            <em>Genres: ${genreNames || 'None'}</em><br>
-                            <button onclick="editNovel(${nv.nv_novel_id}, \`${escapeHtml(nv.nv_novel_title)}\`, \`${escapeHtml(nv.nv_novel_description)}\`)">Edit</button>
-                            <button onclick="deleteNovel(${nv.nv_novel_id})">Delete</button>
-                        </div>`;
-                    }).join('') :
-                    '<p>No novels yet.</p>';
+                    <div style="border:1px solid #ccc;padding:10px;margin:10px">
+                        <strong>${nv.nv_novel_title}</strong><br>
+                        <div>${nv.nv_novel_description}</div>
+                        <small>Published ${nv.nv_novel_publish_date}</small><br>
+                        <em>Genres: ${genreNames || 'None'}</em><br>
+                        <button onclick="editNovel(${nv.nv_novel_id}, \`${escapeHtml(nv.nv_novel_title)}\`, \`${escapeHtml(nv.nv_novel_description)}\`)">Edit</button>
+                        <button onclick="deleteNovel(${nv.nv_novel_id})">Delete</button>
+                    </div>`;
+                    }).join('')
+                    : '<p>No novels found for selected genre.</p>';
             } catch (ex) {
                 box.textContent = ex.response?.data?.error || 'Error loading novels';
             }
@@ -95,11 +98,36 @@ require_once '../../auth/author.php';
             }
             return map;
         }
-
         async function loadAllMappings() {
             const res = await axios.get(GENRE_API + '?all=1');
             return res.data;
         }
+        async function loadGenres() {
+            try {
+                const res = await axios.get(GENRE_API + '?list=1');
+                if (Array.isArray(res.data)) {
+                    genreList = res.data;
+                    const select = document.getElementById('genre-select');
+                    select.innerHTML = '<option disabled selected value="">Select a genre</option>';
+                    const filterSelect = document.getElementById('filter-genre');
+                    filterSelect.innerHTML = '<option value="">-- All Genres --</option>';
+                    for (const genre of genreList) {
+                        const opt1 = document.createElement('option');
+                        opt1.value = genre.nv_genre_id;
+                        opt1.textContent = genre.nv_genre_name;
+                        select.appendChild(opt1);
+                        const opt2 = opt1.cloneNode(true);
+                        filterSelect.appendChild(opt2);
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to load genres');
+            }
+        }
+        document.getElementById('filter-genre').addEventListener('change', e => {
+            const genreId = parseInt(e.target.value);
+            loadNovels(genreId || null);
+        });
 
         function escapeHtml(str) {
             return str.replace(/&/g, '&amp;')
@@ -120,7 +148,6 @@ require_once '../../auth/author.php';
             quill.root.innerHTML = descHtml;
             selectedGenreIds.clear();
             document.getElementById('selected-genres').innerHTML = '';
-
             axios.get(`${GENRE_API}?novel_id=${id}`).then(res => {
                 if (Array.isArray(res.data)) {
                     for (const g of res.data) {
@@ -137,7 +164,6 @@ require_once '../../auth/author.php';
                     }
                 }
             });
-
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -160,17 +186,14 @@ require_once '../../auth/author.php';
             const descHTML = quill.root.innerHTML.trim();
             const errEl = document.getElementById('create-err');
             errEl.textContent = '';
-
             if (!title || !descHTML) {
                 errEl.textContent = 'Both fields required';
                 return;
             }
-
             const payload = {
                 nv_novel_title: title,
                 nv_novel_description: descHTML
             };
-
             try {
                 if (isEditing) {
                     payload.nv_novel_id = id;
@@ -205,29 +228,10 @@ require_once '../../auth/author.php';
         async function deleteNovel(id) {
             if (!confirm('Delete this novel?')) return;
             try {
-                await axios.delete(`${API}?id=${id}`);
+                await axios.delete(API, {params: { nv_novel_id: id }});
                 loadNovels();
             } catch (ex) {
                 alert(ex.response?.data?.error || 'Delete failed');
-            }
-        }
-
-        async function loadGenres() {
-            try {
-                const res = await axios.get(GENRE_API + '?list=1');
-                if (Array.isArray(res.data)) {
-                    genreList = res.data;
-                    const select = document.getElementById('genre-select');
-                    select.innerHTML = '<option disabled selected value="">Select a genre</option>';
-                    for (const genre of genreList) {
-                        const opt = document.createElement('option');
-                        opt.value = genre.nv_genre_id;
-                        opt.textContent = genre.nv_genre_name;
-                        select.appendChild(opt);
-                    }
-                }
-            } catch (err) {
-                console.error('Failed to load genres');
             }
         }
 
@@ -235,7 +239,6 @@ require_once '../../auth/author.php';
             const select = document.getElementById('genre-select');
             const id = parseInt(select.value);
             if (!id || selectedGenreIds.has(id)) return;
-
             selectedGenreIds.add(id);
             const genre = genreList.find(g => g.nv_genre_id == id);
             const ul = document.getElementById('selected-genres');

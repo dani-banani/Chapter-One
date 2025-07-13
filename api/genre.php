@@ -14,11 +14,11 @@ switch ($method) {
         } elseif (isset($_GET['novel_id'])) {
             $novelId = intval($_GET['novel_id']);
             $stmt = $conn->prepare("
-        SELECT g.nv_genre_id, g.nv_genre_name
-        FROM nv_novel_genre_mapping m
-        JOIN nv_novel_genre_db g ON m.nv_genre_id = g.nv_genre_id
-        WHERE m.nv_novel_id = ?
-    ");
+                SELECT g.nv_genre_id, g.nv_genre_name
+                FROM nv_novel_genre_mapping m
+                join nv_novel_genre_db g ON m.nv_genre_id = g.nv_genre_id
+                WHERE m.nv_novel_id = ?
+            ");
             $stmt->bind_param("i", $novelId);
             $stmt->execute();
             $res = $stmt->get_result();
@@ -27,6 +27,15 @@ switch ($method) {
         } elseif (isset($_GET['all'])) {
             $result = $conn->query("SELECT * FROM nv_novel_genre_mapping");
             echo json_encode($result->fetch_all(MYSQLI_ASSOC));
+
+        } elseif (isset($_GET['genre_id'])) {
+            $genreId = intval($_GET['genre_id']);
+            $stmt = $conn->prepare("
+                SELECT n.* from nv_novel n join nv_novel_genre_mapping m on n.nv_novel_id = m.nv_novel_id WHERE nv_genre_id = ?");
+            $stmt->bind_param("i", $genreId);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            echo json_encode($res->fetch_all(MYSQLI_ASSOC));
 
         } else {
             echo json_encode(['error' => 'Missing parameters']);
