@@ -15,34 +15,48 @@ function sanitize_html($html) {
 
 $method = $_SERVER['REQUEST_METHOD'];
 $response = match ($method) {
-    'GET'    => isset($_GET['novel_id']) ? getChaptersByNovel($conn, $_GET['novel_id']) : getChapters($conn),
+    'GET'    => getChapters($conn, $_GET),
     'POST'   => createChapter($conn, json_decode(file_get_contents('php://input'), true)),
     'PUT'    => updateChapter($conn, json_decode(file_get_contents('php://input'), true)),
-    'DELETE' => isset($_GET['id']) ? deleteChapter($conn, $_GET['id']) : ['error' => 'Chapter ID required'],
+    'DELETE' => deleteChapter($conn, $_GET),
     default  => http_response_code(405) && ['error' => 'Unsupported method']
 };
-
 echo json_encode($response);
 
-function getChapters($conn) {
-    $res = $conn->query("SELECT * FROM nv_novel_chapter");
-    return $res ? $res->fetch_all(MYSQLI_ASSOC) : ['error' => $conn->error];
+
+function getChapters($conn, $filters) {
+    $sql = "SELECT * FROM nv_novel_chapter";
+    $values = [];
+    $types = [];
+    if (!empty($filters)) {
+        $where = [];
+        foreach ($filters as $key => $value) {
+            if (strpos($key, 'nv_') === 0) {
+                $where[] = "$key = ?";
+                $values[] = $value;
+                $types[] = is_numeric($value) ? 'i' : 's';
+            }
+        }
+        if ($where) {
+            $sql .= " WHERE " . implode(" AND ", $where);
+        }
+    }
+    $sql .= " ORDER BY nv_novel_id ASC, nv_novel_chapter_number ASC";
+    $stmt = $conn->prepare($sql);
+    if ($values) {
+        $stmt->bind_param(implode('', $types), ...$values);
+    }
+    $stmt->execute();
+    $res = $stmt->get_result();
+    return $res ? $res->fetch_all(MYSQLI_ASSOC) : ['error' => $stmt->error];
 }
 
-function getChaptersByNovel($conn, $novelId) {
-    $stmt = $conn->prepare("SELECT * FROM nv_novel_chapter WHERE nv_novel_id = ? ORDER BY nv_novel_chapter_number ASC");
-    $stmt->bind_param("i", $novelId);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    return $result ? $result->fetch_all(MYSQLI_ASSOC) : ['error' => 'Chapters not found'];
-}
 
 function createChapter($conn, $data) {
     if (!isset($_SESSION['author_id'])) {
         http_response_code(401);
         return ['error' => 'Login required'];
     }
-
     $required = ['nv_novel_id', 'nv_novel_chapter_title', 'nv_novel_chapter_content', 'nv_novel_chapter_description', 'nv_novel_chapter_number'];
     foreach ($required as $field) {
         if (empty($data[$field])) {
@@ -50,7 +64,6 @@ function createChapter($conn, $data) {
             return ['error' => "$field is required"];
         }
     }
-
     $check = $conn->prepare("SELECT nv_novel_author_id FROM nv_novel WHERE nv_novel_id = ?");
     $check->bind_param("i", $data['nv_novel_id']);
     $check->execute();
@@ -59,7 +72,6 @@ function createChapter($conn, $data) {
         http_response_code(403);
         return ['error' => 'Unauthorized to add chapters to this novel'];
     }
-
     $stmt = $conn->prepare("INSERT INTO nv_novel_chapter (nv_novel_chapter_content, nv_novel_chapter_title, nv_novel_chapter_description, nv_novel_chapter_number, nv_novel_id) VALUES (?, ?, ?, ?, ?)");
     $content = sanitize_html($data['nv_novel_chapter_content']);
     $title = sanitize_html($data['nv_novel_chapter_title']);
@@ -67,23 +79,19 @@ function createChapter($conn, $data) {
     $number = $data['nv_novel_chapter_number'];
     $novelId = $data['nv_novel_id'];
     $stmt->bind_param("sssii", $content, $title, $desc, $number, $novelId);
-
-    return $stmt->execute()
-        ? ['success' => true]
-        : ['error' => $stmt->error];
+    return $stmt->execute() ? ['success' => true] : ['error' => $stmt->error];
 }
+
 
 function updateChapter($conn, $data) {
     if (!isset($data['nv_novel_id'], $data['nv_novel_chapter_number'])) {
         http_response_code(400);
         return ['error' => 'Novel ID and Chapter Number required'];
     }
-
     if (!isset($_SESSION['author_id'])) {
         http_response_code(401);
         return ['error' => 'Login required'];
     }
-
     $check = $conn->prepare("SELECT nv_novel_author_id FROM nv_novel WHERE nv_novel_id = ?");
     $check->bind_param("i", $data['nv_novel_id']);
     $check->execute();
@@ -96,7 +104,6 @@ function updateChapter($conn, $data) {
     $fields = [];
     $values = [];
     $types = '';
-
     foreach (['nv_novel_chapter_content', 'nv_novel_chapter_title', 'nv_novel_chapter_description'] as $field) {
         if (isset($data[$field])) {
             $fields[] = "$field = ?";
@@ -104,32 +111,26 @@ function updateChapter($conn, $data) {
             $values[] = sanitize_html($data[$field]);
         }
     }
-
     if (empty($fields)) {
         return ['error' => 'No data to update'];
     }
-
     $types .= 'ii';
     $values[] = $data['nv_novel_id'];
     $values[] = $data['nv_novel_chapter_number'];
-
     $sql = "UPDATE nv_novel_chapter SET " . implode(", ", $fields) . " WHERE nv_novel_id = ? AND nv_novel_chapter_number = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param($types, ...$values);
-
-    return $stmt->execute()
-        ? ['success' => true]
-        : ['error' => $stmt->error];
+    return $stmt->execute() ? ['success' => true] : ['error' => $stmt->error];
 }
 
-function deleteChapter($conn, $chapterNumber) {
-    if (!isset($_SESSION['author_id'], $_GET['novel_id'])) {
+
+function deleteChapter($conn, $get) {
+    if (!isset($_SESSION['author_id'], $get['nv_novel_id'], $get['nv_novel_chapter_number'])) {
         http_response_code(400);
-        return ['error' => 'Author session and novel ID required'];
+        return ['error' => 'Missing required parameters'];
     }
-
-    $novelId = $_GET['novel_id'];
-
+    $novelId = $get['nv_novel_id'];
+    $chapterNumber = $get['nv_novel_chapter_number'];
     $check = $conn->prepare("SELECT nv_novel_author_id FROM nv_novel WHERE nv_novel_id = ?");
     $check->bind_param("i", $novelId);
     $check->execute();
@@ -138,11 +139,7 @@ function deleteChapter($conn, $chapterNumber) {
         http_response_code(403);
         return ['error' => 'Unauthorized'];
     }
-
     $stmt = $conn->prepare("DELETE FROM nv_novel_chapter WHERE nv_novel_id = ? AND nv_novel_chapter_number = ?");
     $stmt->bind_param("ii", $novelId, $chapterNumber);
-
-    return $stmt->execute()
-        ? ['success' => true]
-        : ['error' => $stmt->error];
+    return $stmt->execute() ? ['success' => true] : ['error' => $stmt->error];
 }
