@@ -52,6 +52,7 @@ if (!password_verify($password, $author['nv_author_password'])) {
 }
 
 $_SESSION['author_id'] = $author['nv_author_id'];
+$_SESSION['user_role'] = 'author';
 $token = md5($author['nv_author_id'] . $author['nv_author_email']);
 setcookie('author_login_token', $token, time() + (86400 * 30), "/", "", isset($_SERVER['HTTPS']), true);
 

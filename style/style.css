@@ -1,0 +1,15 @@
+body{
+    font-family: "EB Garamond", serif;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
+
+a{
+    color: black;
+    cursor: pointer;
+}
+
+a:hover{
+    color: blue;
+}

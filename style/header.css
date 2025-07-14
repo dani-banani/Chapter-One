@@ -1,0 +1,61 @@
+header {
+  padding: 0 80px;
+  margin: 0;
+  height: 10vh;
+  max-width: 100%;
+  min-width: 100%;
+  box-sizing: border-box;
+  align-items: center;
+  background-color: #e5e5e5;
+  display: flex;
+}
+
+#navbar-title {
+  flex: 1;
+  text-align: left;
+}
+
+#navbar-search-bar {
+  flex: 1;
+  display: flex;
+  max-width: 80%;
+  background-color: white;
+  align-items: center;
+  gap: 20px;
+  padding: 10px 20px;
+  border-radius: 5px;
+
+  input {
+    flex: 1;
+    padding: 0;
+    border: none;
+    outline: none;
+  }
+}
+
+#navbar-links {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 40px;
+
+  ul {
+    list-style-type: none;
+    margin: 0;
+    display: flex;
+  }
+
+  li {
+    margin-left: 20px;
+  }
+}
+
+#navbar-profile-pic {
+  max-height: 100%;
+
+  img {
+    border-radius: 50%;
+    object-fit: contain;
+  }
+}

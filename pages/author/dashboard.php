@@ -1,27 +1,21 @@
 <?php
 require_once '../../auth/author.php';
+require_once HTML_HEADER;
 ?>
-<!DOCTYPE html>
-<html>
-
-<head>
-    <title>Author Dashboard</title>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
-    <style>
-        #editor {
-            height: 200px;
-            border: 1px solid #ccc;
-            margin-bottom: 10px;
-        }
-    </style>
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
+<style>
+    #editor {
+        height: 200px;
+        border: 1px solid #ccc;
+        margin-bottom: 10px;
+    }
+</style>
 </head>
 
 <body>
+    <?php require_once NAVBAR_COMPONENT; ?>
     <h2><?php echo "Welcome, Author #{$authorId}"; ?></h2>
-    <a href="../../auth/logout_author.php" style="color:red">Logout</a>
-
     <h3 id="form-title">Create a New Novel</h3>
     <form id="create-form">
         <input type="hidden" id="novel-id">
@@ -54,7 +48,9 @@ require_once '../../auth/author.php';
         const API = '../../api/novel.php';
         const GENRE_API = '../../api/genre.php';
         const ME = <?= $authorId ?>;
-        const quill = new Quill('#editor', { theme: 'snow' });
+        const quill = new Quill('#editor', {
+            theme: 'snow'
+        });
         let isEditing = false;
         let genreList = [];
         let selectedGenreIds = new Set();
@@ -64,14 +60,18 @@ require_once '../../auth/author.php';
             box.textContent = 'Loading…';
             const genreDropdown = document.getElementById('filter-genre');
             filterGenreId = genreDropdown.value;
-            const params = new URLSearchParams({ nv_author_id: ME });
+            const params = new URLSearchParams({
+                nv_author_id: ME
+            });
             if (filterGenreId) params.append('genre_id', filterGenreId);
             try {
-                const { data } = await axios.get(`${API}?${params.toString()}`);
+                const {
+                    data
+                } = await axios.get(`${API}?${params.toString()}`);
                 const genreMap = await loadGenreMap();
                 const genreMapping = await loadAllMappings();
-                box.innerHTML = data.length
-                    ? data.map(nv => {
+                box.innerHTML = data.length ?
+                    data.map(nv => {
                         const novelGenres = genreMapping.filter(m => m.nv_novel_id == nv.nv_novel_id);
                         const genreNames = novelGenres.map(m => genreMap[m.nv_genre_id]).join(', ');
                         return `
@@ -83,8 +83,8 @@ require_once '../../auth/author.php';
                         <button onclick="editNovel(${nv.nv_novel_id}, \`${escapeHtml(nv.nv_novel_title)}\`, \`${escapeHtml(nv.nv_novel_description)}\`)">Edit</button>
                         <button onclick="deleteNovel(${nv.nv_novel_id})">Delete</button>
                     </div>`;
-                    }).join('')
-                    : '<p>No novels found for selected genre.</p>';
+                    }).join('') :
+                    '<p>No novels found for selected genre.</p>';
             } catch (ex) {
                 box.textContent = ex.response?.data?.error || 'Error loading novels';
             }
@@ -164,7 +164,10 @@ require_once '../../auth/author.php';
                     }
                 }
             });
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
         }
 
         function cancelEdit() {
@@ -198,7 +201,9 @@ require_once '../../auth/author.php';
                 if (isEditing) {
                     payload.nv_novel_id = id;
                     const res = await axios.put(API, payload, {
-                        headers: { 'Content-Type': 'application/json' }
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
                     });
                     if (res.data.success) {
                         await syncGenres(id);
@@ -209,7 +214,9 @@ require_once '../../auth/author.php';
                     }
                 } else {
                     const res = await axios.post(API, payload, {
-                        headers: { 'Content-Type': 'application/json' }
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
                     });
                     if (res.data.success) {
                         await syncGenres(res.data.id);
@@ -228,7 +235,11 @@ require_once '../../auth/author.php';
         async function deleteNovel(id) {
             if (!confirm('Delete this novel?')) return;
             try {
-                await axios.delete(API, {params: { nv_novel_id: id }});
+                await axios.delete(API, {
+                    params: {
+                        nv_novel_id: id
+                    }
+                });
                 loadNovels();
             } catch (ex) {
                 alert(ex.response?.data?.error || 'Delete failed');
@@ -261,7 +272,9 @@ require_once '../../auth/author.php';
                         nv_novel_id: novelId,
                         nv_genre_id: genre_id
                     }, {
-                        headers: { 'Content-Type': 'application/json' }
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
                     });
                 }
             } catch (err) {

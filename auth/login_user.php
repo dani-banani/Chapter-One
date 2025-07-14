@@ -41,7 +41,7 @@ try {
     }
 
     $_SESSION['user_id'] = $user['nv_user_id'];
-
+    $_SESSION['user_role'] = 'user';
     $token = md5($user['nv_user_id'] . $user['nv_user_email']);
     setcookie('user_login_token', $token, time() + (30 * 24 * 60 * 60), '/');
 

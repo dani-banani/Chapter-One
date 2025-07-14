@@ -6,5 +6,5 @@ session_destroy();
 setcookie('user_login_token', '', time() - 3600, '/');
 
 http_response_code(200);
-header('Location: ../index.html');
+header('Location: ' . LOGIN_PAGE);
 exit;

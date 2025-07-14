@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once __DIR__ . '/../paths.php';
 require_once __DIR__ . '/../database_connection.php';
 
 if (!isset($_SESSION['author_id']) && isset($_COOKIE['author_login_token'])) {
@@ -15,7 +16,7 @@ if (!isset($_SESSION['author_id']) && isset($_COOKIE['author_login_token'])) {
     }
 }
 if (!isset($_SESSION['author_id'])) {
-    header('Location: Chapter-One-main/Chapter-One-main/pages/login.html');
+    header('Location: ' . LOGIN_PAGE);
     exit;
 }
 
