@@ -64,11 +64,11 @@ function createChapter($conn, $data) {
             return ['error' => "$field is required"];
         }
     }
-    $check = $conn->prepare("SELECT nv_novel_author_id FROM nv_novel WHERE nv_novel_id = ?");
+    $check = $conn->prepare("SELECT nv_author_id FROM nv_novel WHERE nv_novel_id = ?");
     $check->bind_param("i", $data['nv_novel_id']);
     $check->execute();
     $res = $check->get_result()->fetch_assoc();
-    if (!$res || $res['nv_novel_author_id'] != $_SESSION['author_id']) {
+    if (!$res || $res['nv_author_id'] != $_SESSION['author_id']) {
         http_response_code(403);
         return ['error' => 'Unauthorized to add chapters to this novel'];
     }
@@ -92,11 +92,11 @@ function updateChapter($conn, $data) {
         http_response_code(401);
         return ['error' => 'Login required'];
     }
-    $check = $conn->prepare("SELECT nv_novel_author_id FROM nv_novel WHERE nv_novel_id = ?");
+    $check = $conn->prepare("SELECT nv_author_id FROM nv_novel WHERE nv_novel_id = ?");
     $check->bind_param("i", $data['nv_novel_id']);
     $check->execute();
     $res = $check->get_result()->fetch_assoc();
-    if (!$res || $res['nv_novel_author_id'] != $_SESSION['author_id']) {
+    if (!$res || $res['nv_author_id'] != $_SESSION['author_id']) {
         http_response_code(403);
         return ['error' => 'Unauthorized'];
     }
@@ -131,11 +131,11 @@ function deleteChapter($conn, $get) {
     }
     $novelId = $get['nv_novel_id'];
     $chapterNumber = $get['nv_novel_chapter_number'];
-    $check = $conn->prepare("SELECT nv_novel_author_id FROM nv_novel WHERE nv_novel_id = ?");
+    $check = $conn->prepare("SELECT nv_author_id FROM nv_novel WHERE nv_novel_id = ?");
     $check->bind_param("i", $novelId);
     $check->execute();
     $res = $check->get_result()->fetch_assoc();
-    if (!$res || $res['nv_novel_author_id'] != $_SESSION['author_id']) {
+    if (!$res || $res['nv_author_id'] != $_SESSION['author_id']) {
         http_response_code(403);
         return ['error' => 'Unauthorized'];
     }

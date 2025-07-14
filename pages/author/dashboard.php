@@ -64,7 +64,7 @@ require_once '../../auth/author.php';
             box.textContent = 'Loading…';
             const genreDropdown = document.getElementById('filter-genre');
             filterGenreId = genreDropdown.value;
-            const params = new URLSearchParams({ nv_novel_author_id: ME });
+            const params = new URLSearchParams({ nv_author_id: ME });
             if (filterGenreId) params.append('genre_id', filterGenreId);
             try {
                 const { data } = await axios.get(`${API}?${params.toString()}`);
@@ -217,7 +217,7 @@ require_once '../../auth/author.php';
                         quill.setContents([]);
                         loadNovels();
                     } else {
-                        errEl.textContent = res.data.error || 'Create failed';
+                        errEl.textContent = res.data.error || res.data;
                     }
                 }
             } catch (ex) {

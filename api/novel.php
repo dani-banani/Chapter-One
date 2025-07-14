@@ -77,7 +77,7 @@ function createNovel($conn, $data) {
     $authorId = $_SESSION['author_id'];
     $now = date('Y-m-d H:i:s');
     $columns = [
-        'nv_novel_author_id' => $authorId,
+        'nv_author_id' => $authorId,
         'nv_novel_publish_date' => $now,
         'nv_novel_title' => sanitize_html($data['nv_novel_title']),
         'nv_novel_description' => sanitize_html($data['nv_novel_description']),
@@ -110,11 +110,11 @@ function updateNovel($conn, $data) {
     }
     $id = $data['nv_novel_id'];
     unset($data['nv_novel_id']);
-    $check = $conn->prepare("SELECT nv_novel_author_id FROM nv_novel WHERE nv_novel_id = ?");
+    $check = $conn->prepare("SELECT nv_author_id FROM nv_novel WHERE nv_novel_id = ?");
     $check->bind_param("i", $id);
     $check->execute();
     $res = $check->get_result()->fetch_assoc();
-    if (!$res || $res['nv_novel_author_id'] != $_SESSION['author_id']) {
+    if (!$res || $res['nv_author_id'] != $_SESSION['author_id']) {
         http_response_code(403);
         return ['error' => 'Forbidden'];
     }
@@ -148,11 +148,11 @@ function deleteNovel($conn, $id) {
         http_response_code(401);
         return ['error' => 'Login required'];
     }
-    $check = $conn->prepare("SELECT nv_novel_author_id FROM nv_novel WHERE nv_novel_id = ?");
+    $check = $conn->prepare("SELECT nv_author_id FROM nv_novel WHERE nv_novel_id = ?");
     $check->bind_param("i", $id);
     $check->execute();
     $res = $check->get_result()->fetch_assoc();
-    if (!$res || $res['nv_novel_author_id'] != $_SESSION['author_id']) {
+    if (!$res || $res['nv_author_id'] != $_SESSION['author_id']) {
         http_response_code(403);
         return ['error' => 'Forbidden'];
     }
