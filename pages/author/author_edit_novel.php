@@ -20,11 +20,6 @@ require_once HTML_HEADER;
         display: flex;
         flex-direction: column;
         gap: 40px;
-
-        h4 {
-            margin: 0;
-            padding: 0;
-        }
     }
 
     .novel-overview {
@@ -50,13 +45,6 @@ require_once HTML_HEADER;
             justify-content: space-between;
             align-items: start;
             flex-direction: column;
-
-            h2,
-            h3,
-            p {
-                margin: 0;
-                padding: 0;
-            }
         }
     }
 
@@ -76,6 +64,11 @@ require_once HTML_HEADER;
         button {
             display: flex;
             gap: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            font-weight: bold;
+            border: 1px solid black;
         }
     }
 
@@ -118,7 +111,7 @@ require_once HTML_HEADER;
         const genreList = novelGenres.data.map(genre => genre.nv_genre_name);
         return genreList.join(',');
     }
-    
+
     document.addEventListener('DOMContentLoaded', async () => {
         const currentNovel = await loadNovel();
         const currentNovelGenre = await loadNovelGenre();
@@ -127,12 +120,13 @@ require_once HTML_HEADER;
         const title = document.getElementById('novel-title');
         const author = document.getElementById('novel-author');
         const novelGenre = document.getElementById('novel-genre');
+        const novelDescription = document.getElementById('novel-description');
 
         publishDate.innerHTML = currentNovel.nv_publish_date;
         title.innerHTML = currentNovel.nv_novel_title;
         author.innerHTML = currentNovel.nv_author_name;
         novelGenre.innerHTML = currentNovelGenre;
-
+        novelDescription.innerHTML = currentNovel.nv_novel_description;
         console.log(currentNovel);
     });
 </script>
@@ -141,7 +135,9 @@ require_once HTML_HEADER;
 <body>
     <?php require_once NAVBAR_COMPONENT; ?>
     <main>
-        <h1>Book Name</h1>
+        <div class="title">
+            <h1>Edit Novel</h1>
+        </div>
         <div class="container">
             <div class="novel-overview">
                 <div class="novel-cover">
@@ -152,7 +148,7 @@ require_once HTML_HEADER;
                         <h2 id="novel-title">Book Name</h2>
                         <h3 id="novel-author">By Author Name</h3>
                         <p id="novel-publish-date">Published Date</p>
-                        <p>Description Lorem ipsum dolor sit amet consectetur, adipisicing elit. Porro, quisquam Lorem ipsum dolor sit amet consectetur adipisicing elit. Aspernatur deserunt iusto totam, est aut incidunt culpa illo quis nulla nisi?Lorem, ipsum dolor sit amet consectetur adipisicing elit. Fugit perferendis corrupti a ratione error recusandae at nisi, iure sequi enim reiciendis laboriosam quia illo amet molestias labore. Enim sint eius inventore accusamus quod fugiat dolores voluptatibus tenetur deserunt consequuntur at minima ipsum laboriosam veniam officiis asperiores quidem explicabo, eaque amet quia dignissimos quaerat? Placeat deserunt necessitatibus consequuntur voluptate aut repudiandae sit dolore ducimus quaerat corrupti distinctio possimus, repellendus aspernatur maiores consequatur facilis dicta velit. Officia nobis sint ipsa itaque sit.lorem100 Lorem ipsum dolor sit amet consectetur adipisicing elit. Non ipsa, voluptatum minima in unde animi itaque officiis distinctio mollitia quo, eligendi, quasi provident omnis maiores! Ipsam, impedit animi repellendus, excepturi architecto incidunt quam, consequatur dolor ratione accusamus ullam. Totam harum excepturi modi vel. Quo omnis ipsum nisi est similique? Quas.</p>
+                        <p id="novel-description">Description Lorem ipsum dolor sit amet consectetur, adipisicing elit. Porro, quisquam Lorem ipsum dolor sit amet consectetur adipisicing elit. Aspernatur deserunt iusto totam, est aut incidunt culpa illo quis nulla nisi?Lorem, ipsum dolor sit amet consectetur adipisicing elit. Fugit perferendis corrupti a ratione error recusandae at nisi, iure sequi enim reiciendis laboriosam quia illo amet molestias labore. Enim sint eius inventore accusamus quod fugiat dolores voluptatibus tenetur deserunt consequuntur at minima ipsum laboriosam veniam officiis asperiores quidem explicabo, eaque amet quia dignissimos quaerat? Placeat deserunt necessitatibus consequuntur voluptate aut repudiandae sit dolore ducimus quaerat corrupti distinctio possimus, repellendus aspernatur maiores consequatur facilis dicta velit. Officia nobis sint ipsa itaque sit.lorem100 Lorem ipsum dolor sit amet consectetur adipisicing elit. Non ipsa, voluptatum minima in unde animi itaque officiis distinctio mollitia quo, eligendi, quasi provident omnis maiores! Ipsam, impedit animi repellendus, excepturi architecto incidunt quam, consequatur dolor ratione accus
                     </div>
                     <p id="novel-genre">Genre: Lorem, ipsum dolor.</p>
                 </div>
@@ -177,10 +173,18 @@ require_once HTML_HEADER;
                 <table>
                     <thead>
                         <tr>
-                            <th><h5>Chapters</h5></th>
-                            <th><h5>Title</h5></th>
-                            <th><h5>Status</h5></th>
-                            <th><h5>Actions</h5></th>
+                            <th>
+                                <h5>Chapters</h5>
+                            </th>
+                            <th>
+                                <h5>Title</h5>
+                            </th>
+                            <th>
+                                <h5>Status</h5>
+                            </th>
+                            <th>
+                                <h5>Actions</h5>
+                            </th>
                         </tr>
                     </thead>
                     <tbody>

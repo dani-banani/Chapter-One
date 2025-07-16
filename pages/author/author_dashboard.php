@@ -19,7 +19,6 @@ require_once HTML_HEADER;
 
 
     /* table */
-
     .author-novels-header {
         display: flex;
         justify-content: space-between;
@@ -29,9 +28,13 @@ require_once HTML_HEADER;
         button {
             display: flex;
             gap: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            font-weight: bold;
+            border: 1px solid black;
         }
     }
-
 
     tr {
         grid-template-columns: auto 100px 200px 100px 200px;
@@ -53,11 +56,12 @@ require_once HTML_HEADER;
     async function loadNovels() {
         const authorNovels = await axios.get('<?php echo NOVEL_API; ?>', {
             params: {
-                nv_author_id: 4
+                // nv_author_id: <?php echo $_SESSION['author_id']; ?>
+                nv_author_id: 6
             }
         });
         const tableBody = document.querySelector('tbody');
-        for (var novel of authorNovels.data) {
+        for (const novel of authorNovels.data) {
             tableBody.innerHTML += `
                 <tr id="${novel.nv_novel_id}">
                 <td class="novel-cover-and-title">
@@ -89,14 +93,20 @@ require_once HTML_HEADER;
     async function deleteNovel(novelId, novelName) {
         const deleteBook = await confirm(`Are you sure you want to delete the following novel?\n\"${novelName}\"`);
         if (!deleteBook) return;
-        const response = await axios.delete('<?php echo NOVEL_API; ?>', {
+
+        const novelDeletionResponse = await axios.delete('<?php echo NOVEL_API; ?>', {
             params: {
                 nv_novel_id: novelId
             }
         })
-        console.log(response)
-    }
 
+        if (novelDeletionResponse.status != 200) {
+            alert('Failed to delete novel');
+            return;
+        }
+
+        window.location.reload();
+    }
 
     function enableDeleteNovelButtons() {
         const deleteButtons = document.querySelectorAll('.delete-novel');
@@ -110,9 +120,18 @@ require_once HTML_HEADER;
         });
     }
 
+    function enableCreateNovelButton() {
+        const createNovelButton = document.getElementById('create-novel-button');
+        createNovelButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.location.href = '<?php echo AUTHOR_CREATE_NOVEL_PAGE; ?>';
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', async () => {
         await loadNovels();
         enableDeleteNovelButtons();
+        enableCreateNovelButton();
     });
 </script>
 </head>
@@ -120,14 +139,16 @@ require_once HTML_HEADER;
 <body>
     <?php require_once NAVBAR_COMPONENT; ?>
     <main>
-        <h1>Welcome, <?php echo $authorUsername; ?></h1>
+        <div class="title">
+            <h1>Welcome, <?php echo $authorUsername; ?></h1>
+        </div>
         <div class="author-info">
 
         </div>
         <div class="author-novels">
             <div class="author-novels-header">
                 <h2>Published Novels</h2>
-                <button><i class="fa-solid fa-plus"></i>Create New Novel</button>
+                <button id="create-novel-button"><i class="fa-solid fa-plus"></i>Create New Novel</button>
             </div>
             <table>
                 <thead>
