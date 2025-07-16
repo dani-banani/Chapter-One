@@ -13,5 +13,5 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <title>Chapter One</title>
     <link rel="stylesheet" href="/chapter-one/style/style.css" type="text/css">
-    <link rel="stylesheet" href="/chapter-one/style/header.css" type="text/css">
+    <link rel="stylesheet" href="/chapter-one/style/navbar.css" type="text/css">
     

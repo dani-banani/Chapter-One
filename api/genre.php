@@ -10,7 +10,6 @@ switch ($method) {
         if (isset($_GET['list'])) {
             $result = $conn->query("SELECT * FROM nv_novel_genre_db ORDER BY nv_genre_name ASC");
             echo json_encode($result->fetch_all(MYSQLI_ASSOC));
-
         } elseif (isset($_GET['novel_id'])) {
             $novelId = intval($_GET['novel_id']);
             $stmt = $conn->prepare("
@@ -23,11 +22,9 @@ switch ($method) {
             $stmt->execute();
             $res = $stmt->get_result();
             echo json_encode($res->fetch_all(MYSQLI_ASSOC));
-
         } elseif (isset($_GET['all'])) {
             $result = $conn->query("SELECT * FROM nv_novel_genre_mapping");
             echo json_encode($result->fetch_all(MYSQLI_ASSOC));
-
         } elseif (isset($_GET['genre_id'])) {
             $genreId = intval($_GET['genre_id']);
             $stmt = $conn->prepare("
@@ -36,12 +33,10 @@ switch ($method) {
             $stmt->execute();
             $res = $stmt->get_result();
             echo json_encode($res->fetch_all(MYSQLI_ASSOC));
-
         } else {
             echo json_encode(['error' => 'Missing parameters']);
         }
         break;
-
     case 'POST':
         $data = json_decode(file_get_contents('php://input'), true);
         if (!isset($data['nv_novel_id'], $data['nv_genre_id'])) {

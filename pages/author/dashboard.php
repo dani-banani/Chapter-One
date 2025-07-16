@@ -75,6 +75,7 @@ require_once HTML_HEADER;
             const filterGenreId = document.getElementById('filter-genre').value;
             const params = new URLSearchParams({ nv_author_id: ME });
             if (filterGenreId) params.append('genre_id', filterGenreId);
+            
             try {
                 const { data } = await axios.get(`${API.novel}?${params.toString()}`);
                 const genreMap = await loadGenreMap();

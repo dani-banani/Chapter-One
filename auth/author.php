@@ -13,6 +13,7 @@ if (!isset($_SESSION['author_id']) && isset($_COOKIE['author_login_token'])) {
 
     if ($author = $result->fetch_assoc()) {
         $_SESSION['author_id'] = $author['nv_author_id'];
+        $_SESSION['author_username'] = $author['nv_author_username'];
     }
 }
 if (!isset($_SESSION['author_id'])) {
@@ -21,4 +22,5 @@ if (!isset($_SESSION['author_id'])) {
 }
 
 $authorId = $_SESSION['author_id'];
+$authorUsername = $_SESSION['author_username'] ?? "Author"; 
 ?>
