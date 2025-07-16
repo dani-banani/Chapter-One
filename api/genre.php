@@ -12,7 +12,7 @@ switch ($method) {
             echo json_encode($result->fetch_all(MYSQLI_ASSOC));
         } elseif (isset($_GET['novel_id'])) {
             $novelId = intval($_GET['novel_id']);
-            $stmt = $conn->prepare("
+            $stmt = $conn->prepare("    
                 SELECT g.nv_genre_id, g.nv_genre_name
                 FROM nv_novel_genre_mapping m
                 join nv_novel_genre_db g ON m.nv_genre_id = g.nv_genre_id

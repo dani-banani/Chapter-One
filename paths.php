@@ -19,5 +19,6 @@ define('REGISTER_PAGE','/chapter-one/pages/register.php');
 define('AUTHOR_DASHBOARD_PAGE','/chapter-one/pages/author/dashboard.php');
 define('REAL_AUTHOR_DASHBOARD_PAGE','/chapter-one/pages/author/author_dashboard.php');
 define('AUTHOR_EDIT_NOVEL_PAGE','/chapter-one/pages/author/author_edit_novel.php');
+define('AUTHOR_CREATE_NOVEL_PAGE','/chapter-one/pages/author/author_create_novel.php');
 
 

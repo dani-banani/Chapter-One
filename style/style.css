@@ -5,10 +5,11 @@
     --primary-button-hover: #e6b800;
     --danger-color: #e63946;
     --success-color: #38b000;
+    --font-family: "Roboto", sans-serif;
 }
 
 body{
-    font-family: "Roboto", sans-serif;
+    font-family: var(--font-family);
     margin: 0;
     padding: 0;
     min-height: 100vh;
@@ -35,6 +36,10 @@ button:hover{
 h1,h2,h3,h4,h5,h6{
     margin: 0;
     padding: 0;
+}
+
+.title{
+    padding: 0 0 20px 0;
 }
 
 /* Components */
