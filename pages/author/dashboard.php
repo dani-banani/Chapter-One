@@ -68,31 +68,29 @@ require_once HTML_HEADER;
         let isEditing = false;
         let genreList = [];
         let selectedGenreIds = new Set();
-
         async function loadNovels() {
             const box = document.getElementById('novel-list');
             box.textContent = 'Loading…';
-            const filterGenreId = document.getElementById('filter-genre').value;
-            const params = new URLSearchParams({ nv_author_id: ME });
-            if (filterGenreId) params.append('genre_id', filterGenreId);
-            
             try {
-                const { data } = await axios.get(`${API.novel}?${params.toString()}`);
+                const { data } = await axios.get(`${API.novel}`, {
+                    params: { nv_author_id: ME }
+                });
                 const genreMap = await loadGenreMap();
                 const genreMapping = await loadAllMappings();
                 box.innerHTML = data.length ? data.map(nv => {
                     const novelGenres = genreMapping.filter(m => m.nv_novel_id == nv.nv_novel_id);
                     const genreNames = novelGenres.map(m => genreMap[m.nv_genre_id]).join(', ');
                     return `
-                <div style="border:1px solid #ccc;padding:10px;margin:10px">
-                    <strong>${nv.nv_novel_title}</strong><br>
-                    <div>${nv.nv_novel_description}</div>
-                    <small>Published ${nv.nv_novel_publish_date}</small><br>
-                    <em>Genres: ${genreNames || 'None'}</em><br>
-                    <button onclick="editNovel(${nv.nv_novel_id}, \`${escapeHtml(nv.nv_novel_title)}\`, \`${escapeHtml(nv.nv_novel_description)}\`)">Edit</button>
-                    <button onclick="deleteNovel(${nv.nv_novel_id})">Delete</button>
-                </div>`;
-                }).join('') : '<p>No novels found for selected genre.</p>';
+            <div style="border:1px solid #ccc;padding:10px;margin:10px">
+                <strong>${nv.nv_novel_title}</strong><br>
+                <div>${nv.nv_novel_description}</div>
+                <small>Published ${nv.nv_novel_publish_date}</small><br>
+                <em>Genres: ${genreNames || 'None'}</em><br>
+                <button onclick="editNovel(${nv.nv_novel_id}, \`${escapeHtml(nv.nv_novel_title)}\`, \`${escapeHtml(nv.nv_novel_description)}\`)">Edit</button>
+                <button onclick="deleteNovel(${nv.nv_novel_id})">Delete</button>
+            </div>`;
+                }).join('') : '<p>No novels found.</p>';
+
                 loadReviews(data.map(n => n.nv_novel_id));
                 loadLibrary(data.map(n => n.nv_novel_id));
             } catch (ex) {
