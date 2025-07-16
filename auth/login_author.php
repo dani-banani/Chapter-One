@@ -33,7 +33,7 @@ if ($identifier === '' || $password === '') {
     exit;
 }
 
-$stmt = $conn->prepare("SELECT nv_author_id, nv_author_email, nv_author_password FROM nv_author WHERE (nv_author_username = ? OR nv_author_email = ?) LIMIT 1");
+$stmt = $conn->prepare("SELECT nv_author_id, nv_author_email, nv_author_password, nv_author_username FROM nv_author WHERE (nv_author_username = ? OR nv_author_email = ?) LIMIT 1");
 $stmt->bind_param('ss', $identifier, $identifier);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -53,6 +53,7 @@ if (!password_verify($password, $author['nv_author_password'])) {
 
 $_SESSION['author_id'] = $author['nv_author_id'];
 $_SESSION['user_role'] = 'author';
+$_SESSION['author_username'] = $author['nv_author_username'];
 $token = md5($author['nv_author_id'] . $author['nv_author_email']);
 setcookie('author_login_token', $token, time() + (86400 * 30), "/", "", isset($_SERVER['HTTPS']), true);
 

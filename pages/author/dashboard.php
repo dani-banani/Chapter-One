@@ -63,11 +63,15 @@ require_once HTML_HEADER;
             const params = new URLSearchParams({
                 nv_author_id: ME
             });
+
             if (filterGenreId) params.append('genre_id', filterGenreId);
+            
             try {
                 const {
                     data
                 } = await axios.get(`${API}?${params.toString()}`);
+
+                console.log(data);
                 const genreMap = await loadGenreMap();
                 const genreMapping = await loadAllMappings();
                 box.innerHTML = data.length ?
@@ -124,6 +128,7 @@ require_once HTML_HEADER;
                 console.error('Failed to load genres');
             }
         }
+        
         document.getElementById('filter-genre').addEventListener('change', e => {
             const genreId = parseInt(e.target.value);
             loadNovels(genreId || null);
