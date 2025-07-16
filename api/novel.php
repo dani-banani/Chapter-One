@@ -29,21 +29,26 @@ function getNovel($conn) {
     $conditions = [];
     $params = [];
     $types = '';
+    $genreIds = [];
     foreach ($_GET as $key => $value) {
         if ($key === 'genre_id') {
+            $genreIds = is_array($value) ? $value : [$value];
             $joinGenre = true;
-            $conditions[] = "m.nv_genre_id = ?";
-            $params[] = intval($value);
-            $types .= 'i';
-        } elseif (strpos($key, 'nv_novel_') === 0) {
+        } elseif ($key === 'nv_author_id' || strpos($key, 'nv_novel_') === 0) {
             $column = "n.$key";
             $conditions[] = "$column = ?";
             $params[] = is_numeric($value) ? intval($value) : $value;
             $types .= is_numeric($value) ? 'i' : 's';
         }
     }
-    if ($joinGenre) {
+    if ($joinGenre && count($genreIds)) {
         $query .= " JOIN nv_novel_genre_mapping m ON n.nv_novel_id = m.nv_novel_id";
+        $placeholders = implode(',', array_fill(0, count($genreIds), '?'));
+        $conditions[] = "m.nv_genre_id IN ($placeholders)";
+        foreach ($genreIds as $gid) {
+            $params[] = intval($gid);
+            $types .= 'i';
+        }
     }
     if (!empty($conditions)) {
         $query .= ' WHERE ' . implode(' AND ', $conditions);
