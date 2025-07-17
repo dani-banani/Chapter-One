@@ -80,7 +80,7 @@ function createChapter($conn, $data) {
     $insert = $conn->prepare("INSERT INTO nv_novel_chapter (nv_novel_chapter_content, nv_novel_chapter_title, nv_novel_chapter_number, nv_novel_id, nv_novel_chapter_status) VALUES (?, ?, ?, ?, ?)");
     $content = sanitize_html($data['nv_novel_chapter_content']);
     $title = sanitize_html($data['nv_novel_chapter_title']);
-    $insert->bind_param("ssii", $content, $title, $newChapterNumber, $data['nv_novel_id'],$status);
+    $insert->bind_param("ssiis", $content, $title, $newChapterNumber, $data['nv_novel_id'],$status);
     return $insert->execute() ? ['success' => true, 'chapter_number' => $newChapterNumber] : ['error' => $insert->error];
 }
 
