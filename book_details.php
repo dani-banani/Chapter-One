@@ -139,6 +139,11 @@ require_once HTML_HEADER;
         border-radius: 8px;
         padding: 10px;
     }
+
+    #chapter-count {
+        font-size: 18px;
+        font-weight: 500;
+    }
 </style>
 </head>
 
@@ -277,11 +282,11 @@ require_once HTML_HEADER;
 
 
             //Get all chapters of a novel using novel id
-            const filter = '?nv_novel_id=' + novelId;
+            const filter = 'nv_novel_id=' + novelId;
             const { data } = await axios.get(`${API.novel_chapter}?"${filter}"`);
 
             //Set chapter count
-            chapterCount.innerHTML = '<h2>' + data.length + " Chapters</h2>";
+            chapterCount.innerHTML = data.length + " Chapters";
 
 
             //For each chapters in the novel, populate div section

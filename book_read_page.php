@@ -111,12 +111,22 @@ require_once HTML_HEADER;
         right: 220px;
     }
 
-    .text {
-        line-height: 1.5;
+    .chapterContainer {
         width: 700px;
-        text-align: justify;
         margin: auto;
+
+        .chapterTitle {
+            font-size: 30px;
+            font-weight: bold;
+        }
+
+        .chapterContent {
+            line-height: 1.5;
+            text-align: justify;
+            margin: auto;
+        }
     }
+
 
     .flexwrap {
         display: flex;
@@ -217,34 +227,10 @@ require_once HTML_HEADER;
                     <p class="deco">Have Fun Reading!</p>
                 </div>
             </div>
-
+            <div id="top-anchor"></div>
             <div id="content">
-                <div id="top-anchor"></div>
-                <p></p>
-                <p class="content">Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien
-                    vitae pellentesque
-                    sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna
-                    tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada
-                    lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora
-                    torquent per conubia nostra inceptos himenaeos.Lorem ipsum dolor sit amet consectetur adipiscing
-                    elit. Quisque faucibus ex sapien
-                    vitae pellentesque
-                    sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna
-                    tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada
-                    lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora
-                    torquent per conubia nostra inceptos himenaeos.
-                    Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien
-                    vitae pellentesque
-                    sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna
-                    tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada
-                    lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora
-                    torquent per conubia nostra inceptos himenaeos.Lorem ipsum dolor sit amet consectetur adipiscing
-                    elit. Quisque faucibus ex sapien
-                    vitae pellentesque
-                    sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna
-                    tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada
-                    lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora
-                    torquent per conubia nostra inceptos himenaeos.</p>
+                <div class="chapterContainer"></div>
+                <div id="specificChapter"></div>
             </div>
             <div id="bottom-anchor"></div>
         </main>
@@ -270,7 +256,8 @@ require_once HTML_HEADER;
             novel_chapter: '../api/novel_chapter.php',
         };
 
-        let genreList = [];
+        const contentBox = document.getElementById('content');
+
 
         //Get current URL
         const params = new URLSearchParams(window.location.search);
@@ -322,48 +309,78 @@ require_once HTML_HEADER;
             const box = document.getElementById('chapterArea');
 
             //Get all chapters of a novel using novel id
-            const filter = '?nv_novel_id=' + novelId;
-            const { data } = await axios.get(`${API.novel_chapter}?"${filter}"`);
+            const filter = 'nv_novel_id=' + novelId;
+            const { data } = await axios.get(`${API.novel_chapter}?${filter}`);
             console.log(data.length);
             box.innerHTML = data.map(chapter => {
                 console.log(chapter);
             });
         }
 
+        //Function to get the total count of chapters
+        async function getChapterCount() {
+            try {
+                //Get all of the chapters of the novel
+                const filter = 'nv_novel_id=' + novelId;
+                const count = await axios.get(`${API.novel_chapter}?${filter}`);
+                return count.data.length;
+            } catch (error) {
+                console.error('Error loading chapters', error);
+            }
+        }
 
-        //Set current chapter
+        //Set current and last chapter
         let currChapter = 1;
-        const lastChapter = 5;
+        let lastChapter;
+
+        //Function to initialise
+        async function init() {
+            lastChapter = await getChapterCount();
+
+            //Populate first chapter on load
+            const chapter = await fetchChapter(currChapter);
+            const title = chapter[0].nv_novel_chapter_title;
+            const content = chapter[0].nv_novel_chapter_content;
+            contentBox.innerHTML = `<div class='chapterContainer'><p class='chapterTitle'>${title}</p><p class=\"text\">${content}</p><p class="deco">Have Fun Reading!</p></div>`;
+        }
+
 
         //Function to load specific chapter, for the table of contents
-        async function loadSpecificChapter(chapter_number) {
+        async function loadSpecificChapter(target_chapter) {
+            //Clear existing content
+            document.querySelectorAll('.chapterContainer').forEach(content => content.remove());
+            const specificBox = document.getElementById('specificChapter');
 
+            if (target_chapter > lastChapter || target_chapter <= 0) return console.log("ERROR!");
+            const chapter = await fetchChapter(target_chapter);
+            const title = chapter[0].nv_novel_chapter_title;
+            const content = chapter[0].nv_novel_chapter_content;
 
-            currChapter = chapter_number;
-            if (currChapter >= lastChapter || currChapter <= 0) return console.log("ERROR!");
-
-            //Get all chapters of a novel using novel id
-            const filter = '?nv_chapter_number' + chapter_number + "?nv_novel_id=" + novelId;
-            const { data } = await axios.get(`${API.novel_chapter}?"${filter}"`);
-            content = data;
-
-
-
-        }
-
-        //Function to load previous chapter
-        async function loadPrevChapter() {
-            return "<div style='background-color:blue;'><p class=\"text\">Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.</p></div>";
-        }
-
-        //Function to load next chapter 
-        async function loadNextChapter() {
-            return "<div style='background-color:red;'><p class=\"text\">Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.</p></div>";
+            specificBox.innerHTML = `<div class='chapterContainer' id="chapter-${target_chapter}"><p class='chapterTitle'>${title}</p><p class=\"text\">${content}</p><p class="deco">Have Fun Reading!</p></div>`;
+            document.getElementById(`chapter-${target_chapter}`).scrollIntoView({ behavior: 'smooth' });
+            currChapter = target_chapter;
         }
 
 
-        //Declare contentBox and anchors
-        const contentBox = document.getElementById('content');
+        async function fetchChapter(chapter_num) {
+            //Get specific chapters with chapter number and novel id 
+            const filter = '?nv_novel_chapter_number=' + chapter_num;
+            const { data } = await axios.get(`${API.novel_chapter}${filter}`);
+            const chapter = data;
+            return chapter;
+        }
+
+
+        //Function to load next or previous chapter
+        async function populateChapter(isNext) {
+            const chapter = isNext ? await fetchChapter(currChapter + 1) : await fetchChapter(currChapter - 1);
+            const title = chapter[0].nv_novel_chapter_title;
+            const content = chapter[0].nv_novel_chapter_content;
+            return `<div class='chapterContainer'><p class='chapterTitle'>${title}</p><p class=\"text\">${content}</p><p class="deco">Have Fun Reading!</p></div>`;
+        }
+
+
+        //Declare anchors
         const topAnchor = document.getElementById('top-anchor');
         const bottomAnchor = document.getElementById('bottom-anchor');
 
@@ -386,7 +403,7 @@ require_once HTML_HEADER;
                         continue;
                     }
 
-                    const prevChapter = await loadPrevChapter();
+                    const prevChapter = await populateChapter(false);
                     if (prevChapter) {
                         contentBox.insertAdjacentHTML('afterbegin', prevChapter);
                         currChapter--; // Only decrement if loaded
@@ -394,12 +411,13 @@ require_once HTML_HEADER;
                 }
 
                 if (entry.target.id === 'bottom-anchor') {
+                    console.log(currChapter);
                     if (currChapter >= lastChapter) {
                         observer.unobserve(bottomAnchor); // Stop observing if last chapter
                         continue;
                     }
 
-                    const nextChapter = await loadNextChapter();
+                    const nextChapter = await populateChapter(true);
                     if (nextChapter) {
                         contentBox.insertAdjacentHTML('beforeend', nextChapter);
                         currChapter++; // Only increment if loaded
@@ -431,25 +449,24 @@ require_once HTML_HEADER;
             }
         });
 
+
         // Load chapters into menu
         async function loadChaptersToMenu() {
             let counter = 1;
             try {
-                // const res = await axios.get(`${API.novel_chapter}?nv_novel_id=${novelId}`);
-                const chapters = [
-                    { nvc_chapter_id: 1, nvc_chapter_title: 'Chapter 1' },
-                    { nvc_chapter_id: 2, nvc_chapter_title: 'Chapter 2' },
-                    { nvc_chapter_id: 3, nvc_chapter_title: 'Chapter 3' }
-                ];
-
+                //Get all of the chapters of the novel
+                const filter = 'nv_novel_id=' + novelId;
+                const { data } = await axios.get(`${API.novel_chapter}?${filter}`);
                 chapterList.innerHTML = ''; // Clear any existing
+                console.log(data);
+                //For each array in data, create a list with anchor 
+                data.forEach(chapter => {
 
-                chapters.forEach(chapter => {
                     const li = document.createElement('li');
                     const link = document.createElement('a');
 
-                    link.href = `?nv_novel_id=${novelId}&chapter=${chapter.nvc_chapter_id}`;
-                    link.innerHTML = counter + "<span style='margin:auto 20px;'><span>" + chapter.nvc_chapter_title;
+                    link.onclick = () => loadSpecificChapter(chapter.nv_novel_chapter_number);
+                    link.innerHTML = "Chapter " + counter;
                     link.style.textDecoration = 'none';
 
                     li.appendChild(link);
@@ -461,6 +478,7 @@ require_once HTML_HEADER;
             }
         }
 
+        init();
         loadChaptersToMenu();
         loadNovelDetail();
     </script>
