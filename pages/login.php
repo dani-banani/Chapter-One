@@ -57,7 +57,7 @@ require_once HTML_HEADER;
             });
             console.log('Login response:', res);
             if (res.data.success) {
-                window.location.replace('author/dashboard.php');
+                window.location.href = '<?php echo AUTHOR_DASHBOARD_PAGE; ?>';
             }
         } catch (err) {
             const msg = err.response?.data?.error || 'Login failed';
@@ -67,4 +67,4 @@ require_once HTML_HEADER;
 </script>
 </body>
 
-</html>
+</html> 

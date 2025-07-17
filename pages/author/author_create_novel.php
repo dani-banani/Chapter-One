@@ -2,8 +2,6 @@
 require_once '../../auth/author.php';
 require_once HTML_HEADER;
 ?>
-<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
-<link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
 <style>
     main {
         padding: 40px 80px;
@@ -17,7 +15,6 @@ require_once HTML_HEADER;
         display: flex;
         flex-direction: row;
         gap: 20px;
-        /* gap: 40px; */
     }
 
     .title-description-col {
@@ -142,24 +139,30 @@ require_once HTML_HEADER;
             }
         }
 
-        .create-novel-button {
+        button{
+            justify-content: center;
             width: 100%;
-            padding: 10px;
-            border-radius: 5px;
-            border: none;
-            font-weight: bold;
-            border: 1px solid black;
         }
 
-
+        .edit-novel-button {
+            display: none;
+        }
     }
 </style>
 <script>
+    let genreOptions = [];
+    let selectedGenreIds = [];
+
+    let defaultNovelGenreIds = []
+    let defaultGenreTitle;
+    let defaultGenreDescription;
+
     async function loadGenreOptions() {
-        const genreOptions = await axios.get('<?php echo GENRE_API; ?>?list');
+        const genreMapping = await axios.get('<?php echo GENRE_API; ?>?list');
         const genreDropdown = document.querySelector('.genre-dropdown');
         const genreDropdownContainer = document.querySelector('.genre-dropdown-container');
-        for (const genre of genreOptions.data) {
+        genreOptions = genreMapping.data;
+        for (const genre of genreOptions) {
             const genreOption = document.createElement('div');
             genreOption.classList.add('genre-option');
             genreOption.id = genre.nv_genre_id;
@@ -168,19 +171,46 @@ require_once HTML_HEADER;
         }
     }
 
-    async function createNovel(novelTitle, novelDescription, selectedGenreIds) {
+    async function loadNovel(novelId) {
+        const novel = await axios.get('<?php echo NOVEL_API; ?>', {
+            params: {
+                nv_novel_id: novelId
+            }
+        });
+        defaultGenreTitle = novel.data[0].nv_novel_title;
+        defaultGenreDescription = novel.data[0].nv_novel_description;
+
+        const title = document.getElementById('novel-title');
+        const novelDescription = document.getElementById('novel-description');
+        title.value = defaultGenreTitle;
+        novelDescription.value = defaultGenreDescription;
+
+        const novelGenres = await axios.get(`<?php echo GENRE_API; ?>?novel_id=${novelId}`);
+        defaultNovelGenreIds = novelGenres.data.map((genre) => genre.nv_genre_id);
+
+        const selectedGenreList = document.querySelector('.selected-genre-list');
+
+        if (defaultNovelGenreIds.length == 0) {
+            selectedGenreList.innerHTML = '<li>None</li>';
+        } else {
+            selectedGenreList.innerHTML = '';
+        }
+
+        defaultNovelGenreIds.forEach((id) => appendGenreToList(id, genreOptions.find((option) => option.nv_genre_id == id).nv_genre_name));
+    }
+
+    async function createNovel(novelTitle, novelDescription) {
         const novelCreationResponse = await axios.post('<?php echo NOVEL_API; ?>', {
             nv_novel_title: novelTitle,
             nv_novel_description: novelDescription,
-            nv_author_id: <?php echo $_SESSION['author_id']; ?>,
         });
 
-        if (novelCreationResponse.status != 200){
+        if (novelCreationResponse.status != 200) {
             alert('Failed to create novel');
             return false;
         }
 
-        for(const genreId of selectedGenreIds){
+        for (const genreId of selectedGenreIds) {
             const genreMappingResponse = await axios.post('<?php echo GENRE_API; ?>', {
                 nv_novel_id: novelCreationResponse.data.id,
                 nv_genre_id: genreId
@@ -192,15 +222,55 @@ require_once HTML_HEADER;
             }
         }
 
+        return novelCreationResponse.data.id;
+    }
+
+    async function editNovel(novelId,novelTitle, novelDescription) {
+        const editNovelResponse = await axios.put('<?php echo NOVEL_API; ?>', {
+            nv_novel_id: novelId,
+            nv_novel_title: novelTitle,
+            nv_novel_description: novelDescription,
+        });
+
+        if (editNovelResponse.status != 200) {
+            alert('Failed to edit novel');
+            return false;
+        }
+
+        const removeGenreNovelMapping = await axios.delete('<?php echo GENRE_API; ?>', {
+            params: {
+                novel_id: novelId
+            }
+        });
+
+        if (removeGenreNovelMapping.status != 200) {
+            alert('Failed to remove genre from novel');
+            return false;
+        }
+
+        for (const genreId of selectedGenreIds) {
+            const addGenreNovelMapping = await axios.post('<?php echo GENRE_API; ?>', {
+                nv_novel_id: novelId,
+                nv_genre_id: genreId
+            });
+
+            if (addGenreNovelMapping.status != 200) {
+                alert('Failed to map genre to novel');
+                return false;
+            }
+        }
+
         return true;
     }
 
-
-    let selectedGenres = [];
-
     function appendGenreToList(genreId, genreName) {
+        if (selectedGenreIds.includes(parseInt(genreId))) {
+            return;
+        }
+
         const selectedGenreList = document.querySelector('.selected-genre-list');
-        if (selectedGenres.length == 0) {
+
+        if (selectedGenreIds.length == 0) {
             selectedGenreList.innerHTML = '';
         }
 
@@ -210,14 +280,15 @@ require_once HTML_HEADER;
         genreItem.style.cursor = 'pointer';
 
         selectedGenreList.appendChild(genreItem);
-        selectedGenres.push(genreId);
+        selectedGenreIds.push(parseInt(genreId));
 
         genreItem.addEventListener('click', (e) => {
             e.stopPropagation();
             genreItem.remove();
-            selectedGenres.pop(genreId);
+            const removedGenreIndex = selectedGenreIds.indexOf(parseInt(genreId));
+            selectedGenreIds.splice(removedGenreIndex, 1);
 
-            if (selectedGenres.length == 0) {
+            if (selectedGenreIds.length == 0) {
                 selectedGenreList.innerHTML = '<li>None</li>';
             }
         });
@@ -247,7 +318,7 @@ require_once HTML_HEADER;
             genreDropdownContainer.style.display = 'none';
             genreDropdown.style.borderRadius = '5px';
 
-            if (selectedGenres.includes(selectedGenre.id)) {
+            if (selectedGenreIds.includes(selectedGenre.id)) {
                 return;
             }
 
@@ -267,20 +338,100 @@ require_once HTML_HEADER;
             }
 
             if (novelTitle.value == '' || novelDescription.value == '') {
-                alert('The title and description are required');
+                alert('The title and description are required!');
                 return;
             }
 
             isCreatingNovel = true;
-            const isNovelCreated = await createNovel(novelTitle.value, novelDescription.value, selectedGenres);
-            if (isNovelCreated) {
-                window.location.href = '<?php echo REAL_AUTHOR_DASHBOARD_PAGE; ?>';
+            const createdNovelId = await createNovel(novelTitle.value, novelDescription.value);
+            if (createdNovelId) {
+                alert("Novel succesfully created!")
+                window.location.href = '<?php echo AUTHOR_NOVEL_VIEW_PAGE; ?>?novel_id=' + createdNovelId;
             }
             isCreatingNovel = false;
         });
     }
 
+    async function enableEditNovelButton(novelId) {
+        let isEditingNovel = false;
+        const editNovelButton = document.querySelector('.edit-novel-button');
+        const novelTitle = document.querySelector('#novel-title');
+        const novelDescription = document.querySelector('#novel-description');
+
+        editNovelButton.addEventListener('click', async () => {
+            if (isEditingNovel) {
+                return;
+            }
+
+            if (novelTitle.value == '' || novelDescription.value == '') {
+                alert('The title and description are required!');
+                return;
+            }
+
+            if (!changesAreMade(novelTitle.value, novelDescription.value)) {
+                alert('No changes are made!');
+                return;
+            }
+
+            console.log(changesAreMade(novelTitle.value, novelDescription.value));
+
+            isEditingNovel = true;
+            const isNovelEdited = await editNovel(novelId, novelTitle.value, novelDescription.value);
+            if (isNovelEdited) {
+                alert("Novel succesfully edited!")
+                window.location.href = '<?php echo AUTHOR_NOVEL_VIEW_PAGE; ?>?novel_id=' + novelId;
+            }
+            isEditingNovel = false;
+        });
+    }
+
+    function loadEditView(novelId) {
+        const pageTitle = document.querySelector('.title h1');
+        pageTitle.innerHTML = 'Edit Novel';
+
+        const genreSelectionTitle = document.querySelector('.gender-selection h3');
+        genreSelectionTitle.innerHTML = 'Edit Book Genre';
+
+        const defaultGenreSelector = document.querySelector('.selected-genre-text');
+        defaultGenreSelector.innerHTML = 'Add Genre';
+
+        const createNovelButton = document.querySelector('.create-novel-button');
+        createNovelButton.style.display = 'none';
+        const editNovelButton = document.querySelector('.edit-novel-button');
+        editNovelButton.style.display = 'block';
+
+        loadNovel(novelId);
+        enableEditNovelButton(novelId);
+    }
+
+    function changesAreMade(novelTitle, novelDescription) {
+        if (defaultGenreTitle != novelTitle) {
+            return true;
+        }
+        if (defaultGenreDescription != novelDescription) {
+            return true;
+        }
+
+        if (defaultNovelGenreIds.length != selectedGenreIds.length) {
+            return true;
+        }
+
+        for (const genreId of selectedGenreIds) {
+            if (defaultNovelGenreIds.includes(genreId)) {
+                continue;
+            }
+            return true;
+        }
+
+        return false;
+    }
+
     document.addEventListener('DOMContentLoaded', async () => {
+        const novelId = new URLSearchParams(window.location.search).get('novel_id');
+        if (novelId) {
+            loadEditView(novelId);
+        }
+
         await loadGenreOptions();
         enableGenderDropdown();
         enableCreateNovelButton();
@@ -292,7 +443,6 @@ require_once HTML_HEADER;
     <?php require_once NAVBAR_COMPONENT; ?>
     <main>
         <div class="title">
-
             <h1>Create New Novel</h1>
         </div>
         <div class="container">
@@ -316,24 +466,19 @@ require_once HTML_HEADER;
                     </div>
                     <div class="selected-genre-list-container">
                         <h5>Selected Genres:</h5>
-
                         <ul class="selected-genre-list">
                             <li>None</li>
                         </ul>
                     </div>
-
-                    <!-- <select name="genre" id="genre-dropdown">
-                                <option selected disabled value="0">Select Genre</option>
-                            </select> -->
-                    <!-- <button class="add-genre-button"><i class="fa-solid fa-plus"></i>Add Genre</button> -->
                 </div>
                 <button class="create-novel-button">
                     Create Novel
                 </button>
+                <button class="edit-novel-button">
+                    Edit Novel
+                </button>
             </div>
-
         </div>
-
     </main>
 </body>
 

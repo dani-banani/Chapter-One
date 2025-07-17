@@ -20,8 +20,7 @@ if (isset($_SESSION['user_id'])) {
             <?php switch ($userRole) {
                 case 'author':
                     echo '<li><a href="' . AUTHOR_DASHBOARD_PAGE . '">Dashboard</a></li>';
-                    echo '<li><a href="' . REAL_AUTHOR_DASHBOARD_PAGE . '">Real Dashboard</a></li>';
-                    echo '<li><a href="' . LOGIN_PAGE . '">Create Book</a></li>';
+                    echo '<li><a href="' . AUTHOR_CREATE_NOVEL_PAGE . '">Create Novel</a></li>';
                     echo '<li><a href="' . LOGOUT_AUTHOR_API . '">Logout</a></li>';
                     break;
                 case 'user':
