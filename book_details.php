@@ -11,7 +11,7 @@ require_once HTML_HEADER;
     .wrapper {
         margin-left: auto;
         margin-right: auto;
-        width: 900px;
+        width: 1250px;
         margin-top: 30px;
     }
 
@@ -21,9 +21,10 @@ require_once HTML_HEADER;
         background-color: rgb(145, 203, 255);
 
         .novel-wrapper {
+            width: 900px;
             display: grid;
             grid-template-columns: 250px auto;
-            column-gap: 40px;
+            column-gap: 70px;
 
             #novel-img {
                 grid-column: 1/2;
@@ -38,6 +39,10 @@ require_once HTML_HEADER;
             }
 
             #novel-details {
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+
                 #novel-title {
                     margin: 0;
                 }
@@ -72,7 +77,7 @@ require_once HTML_HEADER;
     }
 
     section {
-        width: 900px;
+        width: 100%;
     }
 
     #aboutBtn,
@@ -111,20 +116,27 @@ require_once HTML_HEADER;
 
 
     .chapter-container {
-        padding: 10px;
-        margin: 10px;
+        padding: 20px 10px;
+        margin: 50px 10px;
         height: 100px;
-        overflow: hidden;
 
         .chapter-title {
             font-size: 24px;
             font-weight: bold;
             margin: 0px;
+            text-decoration: none;
+            transition: all 0.3s ease-in-out;
         }
 
-        .chapter-content {
+        .chapter-content p {
             font-size: 18px;
             margin-bottom: 0px;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            /* number of lines to show */
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
         }
 
     }
@@ -157,10 +169,11 @@ require_once HTML_HEADER;
                 <img src='img/question.png' />
             </div>
             <div id='novel-details'>
-                <h1 id="novel-title">Loading...</h1>
-                <p stle="font-size:9x;color:gray;">Author: <span id="novel-author">Author</span></p>
-
-                <div>
+                <div id="detail-container">
+                    <h1 id="novel-title">Loading...</h1>
+                    <p stle="font-size:9x;color:gray;">Author: <span id="novel-author">Author</span></p>
+                </div>
+                <div id="button-container">
                     <a id="readBtn" href="">
                         Read Now
                     </a>
@@ -174,7 +187,7 @@ require_once HTML_HEADER;
 
     <div class="wrapper">
         <section id="btnSection" style="display: flex;flex-direction: row;">
-            <button id="aboutBtn" onclick="sectionSelection('about')">About</button>
+            <button id="aboutBtn" onclick="sectionSelection('about')" class="focused">About</button>
             <span class="separator">|</span>
             <button id="chapterBtn" onclick="sectionSelection('chapter')">Chapters</button>
         </section>
@@ -293,8 +306,8 @@ require_once HTML_HEADER;
             let counter = 1;
             box.innerHTML = data.map(chapter => (
                 `<div class='chapter-container'>
-                    <p class='chapter-title'>Chapter ${counter++ + ": " + chapter.nv_novel_chapter_title}</p>
-                    <p class='chapter-content'>${chapter.nv_novel_chapter_content}</p>
+                    <a class='chapter-title' href='book_read_page.php?nv_novel_id=${chapter.nv_novel_id}&nv_novel_chapter_number=${chapter.nv_novel_chapter_number}'>Chapter ${counter++ + ": " + chapter.nv_novel_chapter_title}</a>
+                    <div class='chapter-content'>${chapter.nv_novel_chapter_content}</div>
                 </div>`
 
             )).join('');
