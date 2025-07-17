@@ -56,6 +56,7 @@ function createChapter($conn, $data) {
         http_response_code(401);
         return ['error' => 'Login required'];
     }
+    $status = 'draft';
     $required = ['nv_novel_id', 'nv_novel_chapter_title', 'nv_novel_chapter_content'];
     foreach ($required as $field) {
         if (empty($data[$field])) {
@@ -76,10 +77,10 @@ function createChapter($conn, $data) {
     $stmt->execute();
     $maxResult = $stmt->get_result()->fetch_assoc();
     $newChapterNumber = ($maxResult['max_number'] ?? 0) + 1;
-    $insert = $conn->prepare("INSERT INTO nv_novel_chapter (nv_novel_chapter_content, nv_novel_chapter_title, nv_novel_chapter_number, nv_novel_id) VALUES (?, ?, ?, ?)");
+    $insert = $conn->prepare("INSERT INTO nv_novel_chapter (nv_novel_chapter_content, nv_novel_chapter_title, nv_novel_chapter_number, nv_novel_id, nv_novel_chapter_status) VALUES (?, ?, ?, ?, ?)");
     $content = sanitize_html($data['nv_novel_chapter_content']);
     $title = sanitize_html($data['nv_novel_chapter_title']);
-    $insert->bind_param("ssii", $content, $title, $newChapterNumber, $data['nv_novel_id']);
+    $insert->bind_param("ssii", $content, $title, $newChapterNumber, $data['nv_novel_id'],$status);
     return $insert->execute() ? ['success' => true, 'chapter_number' => $newChapterNumber] : ['error' => $insert->error];
 }
 
@@ -105,13 +106,14 @@ function updateChapter($conn, $data) {
     $fields = [];
     $values = [];
     $types = '';
-    foreach (['nv_novel_chapter_content', 'nv_novel_chapter_title'] as $field) {
+    foreach (['nv_novel_chapter_content', 'nv_novel_chapter_title','nv_novel_chapter_status'] as $field) {
         if (isset($data[$field])) {
             $fields[] = "$field = ?";
             $types .= 's';
             $values[] = sanitize_html($data[$field]);
         }
     }
+    
     if (empty($fields)) {
         return ['error' => 'No data to update'];
     }
