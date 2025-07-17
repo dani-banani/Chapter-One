@@ -59,7 +59,7 @@ function createChapter($conn, $data) {
     $required = ['nv_novel_id', 'nv_novel_chapter_title', 'nv_novel_chapter_content'];
     foreach ($required as $field) {
         if (empty($data[$field])) {
-            http_response_code(400);
+            http_response_code(response_code: 400);
             return ['error' => "$field is required"];
         }
     }
@@ -76,7 +76,7 @@ function createChapter($conn, $data) {
     $stmt->execute();
     $maxResult = $stmt->get_result()->fetch_assoc();
     $newChapterNumber = ($maxResult['max_number'] ?? 0) + 1;
-    $insert = $conn->prepare("INSERT INTO nv_novel_chapter (nv_novel_chapter_content, nv_novel_chapter_title, nv_novel_chapter_number, nv_novel_id) VALUES (?, ?, ?, ?)");
+    $insert = $conn->prepare("INSERT INTO nv_novel_chapter (nv_novel_chapter_content, nv_novel_chapter_title, nv_novel_chapter_number, nv_novel_id) VALUES (?, ?, ?)");
     $content = sanitize_html($data['nv_novel_chapter_content']);
     $title = sanitize_html($data['nv_novel_chapter_title']);
     $insert->bind_param("sssii", $content, $title, $newChapterNumber, $data['nv_novel_id']);
