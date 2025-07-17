@@ -51,13 +51,12 @@ function getChapters($conn, $filters) {
     return $res ? $res->fetch_all(MYSQLI_ASSOC) : ['error' => $stmt->error];
 }
 
-
 function createChapter($conn, $data) {
     if (!isset($_SESSION['author_id'])) {
         http_response_code(401);
         return ['error' => 'Login required'];
     }
-    $required = ['nv_novel_id', 'nv_novel_chapter_title', 'nv_novel_chapter_content', 'nv_novel_chapter_description', 'nv_novel_chapter_number'];
+    $required = ['nv_novel_id', 'nv_novel_chapter_title', 'nv_novel_chapter_content', 'nv_novel_chapter_description'];
     foreach ($required as $field) {
         if (empty($data[$field])) {
             http_response_code(400);
@@ -72,14 +71,17 @@ function createChapter($conn, $data) {
         http_response_code(403);
         return ['error' => 'Unauthorized to add chapters to this novel'];
     }
-    $stmt = $conn->prepare("INSERT INTO nv_novel_chapter (nv_novel_chapter_content, nv_novel_chapter_title, nv_novel_chapter_description, nv_novel_chapter_number, nv_novel_id) VALUES (?, ?, ?, ?, ?)");
+    $stmt = $conn->prepare("SELECT MAX(nv_novel_chapter_number) as max_number FROM nv_novel_chapter WHERE nv_novel_id = ?");
+    $stmt->bind_param("i", $data['nv_novel_id']);
+    $stmt->execute();
+    $maxResult = $stmt->get_result()->fetch_assoc();
+    $newChapterNumber = ($maxResult['max_number'] ?? 0) + 1;
+    $insert = $conn->prepare("INSERT INTO nv_novel_chapter (nv_novel_chapter_content, nv_novel_chapter_title, nv_novel_chapter_description, nv_novel_chapter_number, nv_novel_id) VALUES (?, ?, ?, ?, ?)");
     $content = sanitize_html($data['nv_novel_chapter_content']);
     $title = sanitize_html($data['nv_novel_chapter_title']);
     $desc = sanitize_html($data['nv_novel_chapter_description']);
-    $number = $data['nv_novel_chapter_number'];
-    $novelId = $data['nv_novel_id'];
-    $stmt->bind_param("sssii", $content, $title, $desc, $number, $novelId);
-    return $stmt->execute() ? ['success' => true] : ['error' => $stmt->error];
+    $insert->bind_param("sssii", $content, $title, $desc, $newChapterNumber, $data['nv_novel_id']);
+    return $insert->execute() ? ['success' => true, 'chapter_number' => $newChapterNumber] : ['error' => $insert->error];
 }
 
 
@@ -141,5 +143,16 @@ function deleteChapter($conn, $get) {
     }
     $stmt = $conn->prepare("DELETE FROM nv_novel_chapter WHERE nv_novel_id = ? AND nv_novel_chapter_number = ?");
     $stmt->bind_param("ii", $novelId, $chapterNumber);
-    return $stmt->execute() ? ['success' => true] : ['error' => $stmt->error];
+    if (!$stmt->execute()) {
+        return ['error' => $stmt->error];
+    }
+    $shift = $conn->prepare("
+        UPDATE nv_novel_chapter 
+        SET nv_novel_chapter_number = nv_novel_chapter_number - 1 
+        WHERE nv_novel_id = ? AND nv_novel_chapter_number > ?
+    ");
+    $shift->bind_param("ii", $novelId, $chapterNumber);
+    $shift->execute();
+
+    return ['success' => true];
 }
