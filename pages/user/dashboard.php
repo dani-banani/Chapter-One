@@ -99,6 +99,8 @@ require_once HTML_HEADER;
 </head>
 
 <body>
+    <?php require_once NAVBAR_COMPONENT; ?>
+
     <div class="slider" id="heroSlider">
         <div class="slides" id="slides">
             <div class="slide" style="background-image: url('https://source.unsplash.com/featured/?city');">

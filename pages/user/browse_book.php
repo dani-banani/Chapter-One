@@ -189,10 +189,8 @@ require_once HTML_HEADER;
                 <div>
                     <h3 id="genreTitle"></h3>
                     <p id="genreIntro"></p>
+                    <hr>
                 </div>
-                <hr>
-                <h3>Books</h3>
-                <hr>
                 <div id="novel-list-container">
                     <ul id="novel-list">Loading…</ul>
                 </div>
@@ -385,8 +383,11 @@ require_once HTML_HEADER;
             const genreButtons = document.querySelectorAll('.genre-button');
 
             genreButtons.forEach(button => {
-                // Apply isSelected class if URL matches
-                if (button.href.includes(`nv_genre_id=${genreId}`) || (genreId == null && button.href.includes('browse_book.php?all'))) {
+                const url = new URL(button.href);
+                const buttonGenreId = url.searchParams.get('nv_genre_id');
+
+                if ((genreId == null && url.href.includes('browse_book.php?all')) ||
+                    (genreId != null && genreId === buttonGenreId)) {
                     button.classList.add('isSelected');
                 }
             });
