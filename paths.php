@@ -2,17 +2,18 @@
 
 //Endpoints/Files
 define('ROOT_PATH', __DIR__);
-define('MAIN_CSS',ROOT_PATH . '/pages/css/main.css');
-define('HTML_HEADER',ROOT_PATH . '/components/html_header.php');
+define('MAIN_CSS', ROOT_PATH . '/pages/css/main.css');
+define('HTML_HEADER', ROOT_PATH . '/components/html_header.php');
 
 //api
-define('LOGOUT_AUTHOR_API','/chapter-one/auth/logout_author.php');
-define('NOVEL_API','/chapter-one/api/novel.php');
-define('GENRE_API','/chapter-one/api/genre.php');
-define('NOVEL_CHAPTER_API','/chapter-one/api/novel_chapter.php');
+define('LOGOUT_AUTHOR_API', '/chapter-one/auth/logout_author.php');
+define('NOVEL_API', '/chapter-one/api/novel.php');
+define('GENRE_API', '/chapter-one/api/genre.php');
+define('NOVEL_CHAPTER_API', '/chapter-one/api/novel_chapter.php');
 
 // UI Components
-define('NAVBAR_COMPONENT',ROOT_PATH . '/components/navbar.php');
+define('NAVBAR_COMPONENT', ROOT_PATH . '/components/navbar.php');
+define('FOOTER_COMPONENT', ROOT_PATH . '/components/footer.php');
 
 //Pages
 define('LOGIN_PAGE','/chapter-one/pages/login.php');
