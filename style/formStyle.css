@@ -33,7 +33,14 @@ input[type="submit"] {
     height: 40px;
     font-size: 18px;
     background-color: rgb(255, 183, 0);
+    cursor: pointer;
 }
+
+input[type="submit"]:hover {
+    background-color: rgb(210, 150, 0);
+}
+
+
 
 input[type="text"]:focus,
 input[type="password"]:focus {

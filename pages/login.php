@@ -7,8 +7,6 @@ require_once HTML_HEADER;
 </head>
 
 <body>
-    <?php require_once NAVBAR_COMPONENT; ?>
-
     <main>
         <div id="form-wrapper">
             <h1 id="welcomeTitle">Welcome</h1>
@@ -44,6 +42,7 @@ require_once HTML_HEADER;
         const identifier = document.getElementById('identifier').value;
         const password = document.getElementById('password').value;
         const errorBox = document.getElementById('error-message');
+
         errorBox.textContent = '';
         console.log('Attempting login with:', {
             identifier,
@@ -57,7 +56,7 @@ require_once HTML_HEADER;
             });
             console.log('Login response:', res);
             if (res.data.success) {
-                window.location.href = '<?php echo AUTHOR_DASHBOARD_PAGE; ?>';
+                window.location.replace('author/dashboard.php');
             }
         } catch (err) {
             const msg = err.response?.data?.error || 'Login failed';
@@ -67,4 +66,4 @@ require_once HTML_HEADER;
 </script>
 </body>
 
-</html> 
+</html>
