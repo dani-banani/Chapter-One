@@ -74,7 +74,7 @@ function createNovel($conn, $data) {
     }
     $required = ['nv_novel_title', 'nv_novel_description'];
     foreach ($required as $field) {
-        if (empty($data[$field])) {
+        if (isset($data[$field])) {
             http_response_code(400);
             return ['error' => "$field is required"];
         }
