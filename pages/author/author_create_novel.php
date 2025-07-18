@@ -3,8 +3,14 @@ require_once '../../auth/author.php';
 require_once HTML_HEADER;
 ?>
 <style>
+    body {
+        display: flex;
+        flex-direction: column;
+    }
+
     main {
         padding: 40px 80px;
+        flex: 1
     }
 
     .container {
@@ -139,7 +145,7 @@ require_once HTML_HEADER;
             }
         }
 
-        button{
+        button {
             justify-content: center;
             width: 100%;
         }
@@ -225,7 +231,7 @@ require_once HTML_HEADER;
         return novelCreationResponse.data.id;
     }
 
-    async function editNovel(novelId,novelTitle, novelDescription) {
+    async function editNovel(novelId, novelTitle, novelDescription) {
         const editNovelResponse = await axios.put('<?php echo NOVEL_API; ?>', {
             nv_novel_id: novelId,
             nv_novel_title: novelTitle,
@@ -443,7 +449,7 @@ require_once HTML_HEADER;
     <?php require_once NAVBAR_COMPONENT; ?>
     <main>
         <div class="title">
-            <h1>Create New Novel</h1>
+            <h1>Create Your New Novel</h1>
         </div>
         <div class="container">
             <div class="title-description-col">
@@ -480,6 +486,7 @@ require_once HTML_HEADER;
             </div>
         </div>
     </main>
+    <?php require_once FOOTER_COMPONENT; ?>
 </body>
 
 </html>
