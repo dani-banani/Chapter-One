@@ -57,11 +57,12 @@ require_once HTML_HEADER;
                     <br><br>
                     <label for="confirm_pass">Confirm Password</label><br>
                     <input type="password" name="confirm_pass" id="confirm_pass">
-                    <br><br>
-                    <label for="agreement" style="font-size:14px;"><input type="checkbox" name="agreement" value="true"
-                            id="agreement"> I agree
-                        to the
-                        the <a href="#">Terms and Condition</a> and <a href="#">Privacy Policy</a></label><br><br><br>
+                    <br><br><br><br>
+                    <label>Register as</label><br><br>
+                    <label><input type="radio" name='role' value="reader">Reader</label>
+                    <label style="margin-left:30px;"><input type="radio" name='role' value="author">Author</label>
+                    <br><br><br><br>
+
                     <button type="button" id="submitButton" disabled>Sign Up</button>
                 </form>
                 <p>Already have an account? <a href="<?php echo LOGIN_PAGE; ?>" style='color:blue'>Login Here</a></p>
@@ -156,25 +157,67 @@ require_once HTML_HEADER;
 
     //Run query when button is clicked
     document.getElementById('submitButton').onclick = async (e) => {
+        const roleField = document.querySelector('input[name="role"]:checked');
+        console.log(roleField);
+        if (!roleField) {
+            alert('Please select a role!');
+            return;
+        }
+
+        const selectedRole = roleField.value;
+
         try {
-            const res = await axios.post('<?php echo AUTHOR_API; ?>', {
-                email: emailField.value,
-                username: usernameField.value,
-                password: passField.value,
-            });
-            if (res.data?.success) {
-                const loginRes = await axios.post('<?php echo LOGIN_AUTHOR_API; ?>', {
-                    identifier: emailField.value,
-                    password: passField.value,
-                });
-                if (loginRes.data?.success) {
-                    window.location.href = '<?PHP echo AUTHOR_DASHBOARD_PAGE; ?>';
-                } else {
-                    alert('Login failed: ' + (loginRes.data?.error || 'Unknown error'));
-                }
-            } else {
-                alert('Registration failed: ' + (res.data?.error || 'Unknown error'));
+            switch (selectedRole) {
+                case 'author':
+                    const res = await axios.post('<?php echo AUTHOR_API; ?>', {
+                        email: emailField.value,
+                        username: usernameField.value,
+                        password: passField.value,
+                    });
+                    if (res.data?.success) {
+                        const loginRes = await axios.post('<?php echo LOGIN_AUTHOR_API; ?>', {
+                            identifier: emailField.value,
+                            password: passField.value,
+                        });
+                        if (loginRes.data?.success) {
+                            window.location.href = '<?PHP echo AUTHOR_DASHBOARD_PAGE; ?>';
+                        } else {
+                            alert('Login failed: ' + (loginRes.data?.error || 'Unknown error'));
+                        }
+                    } else {
+                        alert('Registration failed: ' + (res.data?.error || 'Unknown error'));
+                    }
+                    break;
+
+                case 'reader':
+
+                    const response = await axios.post('<?php echo USER_API; ?>', {
+                        email: emailField.value,
+                        username: usernameField.value,
+                        password: passField.value,
+                    });
+                    console.log("EEER" + response.data);
+
+                    if (response.data?.success) {
+                        const loginRes = await axios.post('<?php echo LOGIN_USER_API; ?>', {
+                            identifier: emailField.value,
+                            password: passField.value,
+                        });
+                        if (loginRes.data?.success) {
+                            window.location.href = '<?PHP echo USER_DASHBOARD_PAGE; ?>';
+                        } else {
+                            alert('Login failed: ' + (loginRes.data?.error || 'Unknown error'));
+                        }
+                    } else {
+                        alert('Registration failed: ' + (res.data?.error || 'Unknown error'));
+                    }
+
+                    break;
+
+                default:
+                    alert("Error! Invalid Request.");
             }
+
         } catch (err) {
             if (err.response?.data?.error) {
                 alert('Error: ' + err.response.data.error);
@@ -182,7 +225,7 @@ require_once HTML_HEADER;
                 alert('Server error');
             }
         }
-    };
+    }
 </script>
 </body>
 

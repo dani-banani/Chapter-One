@@ -26,28 +26,31 @@ switch ($method) {
 
 echo json_encode($response);
 
-function getUsers($conn) {
+function getUsers($conn)
+{
     $res = $conn->query("SELECT nv_user_id, nv_user_email,nv_user_username, nv_user_sub_tier, nv_user_created_date, nv_user_role FROM nv_user");
     return $res ? $res->fetch_all(MYSQLI_ASSOC) : ['error' => $conn->error];
 }
 
-function getUser($conn, $id) {
+function getUser($conn, $id)
+{
     $stmt = $conn->prepare("SELECT nv_user_id, nv_user_email,nv_user_username, nv_user_sub_tier, nv_user_created_date, nv_user_role FROM nv_user WHERE nv_user_id = ?");
     $stmt->bind_param("i", $id);
     $stmt->execute();
     return $stmt->get_result()->fetch_assoc() ?: ['error' => 'User not found'];
 }
 
-function createUser($conn, $data) {
-    if (!isset($data['email'], $data['password'],$data['username'])) {
+function createUser($conn, $data)
+{
+    if (!isset($data['email'], $data['password'], $data['username'])) {
         http_response_code(400);
         return ['error' => 'Email and password are required'];
     }
 
     $email = trim($data['email']);
     $role = $data['role'] ?? 'reader';
-    $tier = (int)($data['sub_tier'] ?? 0);
-    $username= $data['username'];
+    $tier = (int) ($data['sub_tier'] ?? 0);
+    $username = $data['username'];
 
     $stmt = $conn->prepare("SELECT 1 FROM nv_user WHERE nv_user_email = ?");
     $stmt->bind_param("s", $email);
@@ -59,14 +62,15 @@ function createUser($conn, $data) {
 
     $hashed = password_hash($data['password'], PASSWORD_DEFAULT);
     $stmt = $conn->prepare("INSERT INTO nv_user (nv_user_email, nv_user_password, nv_user_sub_tier,nv_user_username, nv_user_role) VALUES (?, ?,?, ?, ?)");
-    $stmt->bind_param("ssis", $email, $hashed, $tier, $username, $role);
+    $stmt->bind_param("ssiss", $email, $hashed, $tier, $username, $role);
 
     return $stmt->execute()
         ? ['success' => true, 'id' => $stmt->insert_id]
         : ['error' => $stmt->error];
 }
 
-function updateUser($conn, $data) {
+function updateUser($conn, $data)
+{
     if (!isset($data['id'], $data['email'], $data['username'])) {
         http_response_code(400);
         return ['error' => 'ID and email are required'];
@@ -75,7 +79,7 @@ function updateUser($conn, $data) {
     $id = $data['id'];
     $email = trim($data['email']);
     $role = $data['role'] ?? null;
-    $tier = isset($data['sub_tier']) ? (int)$data['sub_tier'] : null;
+    $tier = isset($data['sub_tier']) ? (int) $data['sub_tier'] : null;
 
     $stmt = $conn->prepare("SELECT 1 FROM nv_user WHERE nv_user_email = ? AND nv_user_id != ?");
     $stmt->bind_param("si", $email, $id);
@@ -97,7 +101,8 @@ function updateUser($conn, $data) {
     return $stmt->execute() ? ['success' => true] : ['error' => $stmt->error];
 }
 
-function deleteUser($conn, $id) {
+function deleteUser($conn, $id)
+{
     $stmt = $conn->prepare("DELETE FROM nv_user WHERE nv_user_id = ?");
     $stmt->bind_param("i", $id);
     return $stmt->execute() ? ['success' => true] : ['error' => $stmt->error];

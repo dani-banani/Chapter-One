@@ -21,7 +21,7 @@ label {
 
 
 form input[type="text"],
-input[type="password"]{
+input[type="password"] {
     margin-top: 10px;
     width: 450px;
     height: 35px;
@@ -51,7 +51,7 @@ input[type="password"]:focus {
     margin-bottom: 100px;
 }
 
-button#submitButton {
+#submitButton {
     width: 450px;
     height: 40px;
     font-size: 18px;
@@ -63,11 +63,6 @@ button#submitButton {
     display: block;
 }
 
-button#submitButton:focus {
-    outline: none;
-    border: solid 2px orange;
-}
-
-button#submitButton:hover {
+#submitButton:active:hover {
     background-color: rgb(255, 200, 50);
 }

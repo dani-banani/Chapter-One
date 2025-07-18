@@ -11,10 +11,13 @@ if (isset($_SESSION['user_id'])) {
     <div id="navbar-title">
         <h1>Chapter One</h1>
     </div>
-    <div id="navbar-search-bar">
-        <input type="text" placeholder="Search...">
-        <a href=""><i class="fa-solid fa-magnifying-glass"></i></a>
-    </div>
+    <?php if ($userRole != 'author'): ?>
+        <div id="navbar-search-bar">
+            <input type="text" placeholder="Search...">
+            <a href=""><i class="fa-solid fa-magnifying-glass"></i></a>
+        </div>
+    <?php endif ?>
+
     <nav id="navbar-links">
         <ul>
             <?php switch ($userRole) {
