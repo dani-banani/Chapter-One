@@ -78,7 +78,7 @@ function createNovel($conn, $data)
     }
     $required = ['nv_novel_title', 'nv_novel_description'];
     foreach ($required as $field) {
-        if (isset($data[$field])) {
+        if (!isset($data[$field])) {
             http_response_code(400);
             return ['error' => "$field is required"];
         }
@@ -88,7 +88,7 @@ function createNovel($conn, $data)
     $columns = [
         'nv_author_id' => $authorId,
         'nv_novel_publish_date' => $now,
-        'nv_novel_title' => sanitize_html($data['nv_novel_title']),
+        'nv_novel_title' => sanitize_html(html: $data['nv_novel_title']),
         'nv_novel_description' => sanitize_html($data['nv_novel_description']),
     ];
     foreach ($data as $key => $val) {
