@@ -80,7 +80,7 @@ function updateUser($conn, $data)
     $email = trim($data['email']);
     $role = $data['role'] ?? null;
     $tier = isset($data['sub_tier']) ? (int) $data['sub_tier'] : null;
-
+    $username = $data['username'];
     $stmt = $conn->prepare("SELECT 1 FROM nv_user WHERE nv_user_email = ? AND nv_user_id != ?");
     $stmt->bind_param("si", $email, $id);
     $stmt->execute();
