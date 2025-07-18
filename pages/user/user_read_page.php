@@ -349,6 +349,11 @@ require_once HTML_HEADER;
             lastChapter = await getChapterCount();
             //Populate first chapter on load
             const chapter = await fetchChapter(currChapter);
+
+            if (Array.isArray(chapter) && chapter.length === 0) {
+                contentBox.innerHTML = "<h1 style='text-align:center;margin-top:50px;'>No Chapters found!</h1>";
+                return;
+            }
             const title = chapter[0].nv_novel_chapter_title;
             const chapterNum = chapter[0].nv_novel_chapter_number;
             const content = chapter[0].nv_novel_chapter_content;
@@ -432,7 +437,7 @@ require_once HTML_HEADER;
 
         async function fetchChapter(chapter_num) {
             //Get specific chapters with chapter number and novel id 
-            const filter = '?nv_novel_chapter_number=' + chapter_num;
+            const filter = '?nv_novel_chapter_number=' + chapter_num + "&nv_novel_id=" + novelId + "&nv_novel_chapter_status=published";
             const { data } = await axios.get(`${API.novel_chapter}${filter}`);
             const chapter = data;
 
@@ -619,7 +624,6 @@ require_once HTML_HEADER;
                 const filter = 'nv_novel_id=' + novelId;
                 const { data } = await axios.get(`${API.novel_chapter}?${filter}`);
                 chapterList.innerHTML = ''; // Clear any existing
-                console.log(data);
                 //For each array in data, create a list with anchor 
                 data.forEach(chapter => {
 

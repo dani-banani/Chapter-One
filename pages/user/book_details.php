@@ -295,6 +295,8 @@ require_once HTML_HEADER;
         }
 
         async function getNovelChapters() {
+
+
             //Get container for chapter
             const box = document.getElementById('chapterArea');
             const chapterCount = document.getElementById('chapter-count');
@@ -320,12 +322,11 @@ require_once HTML_HEADER;
                 )).join('');
             } else {
                 box.innerHTML = `<div class='chapter-container' style=''>
-                                        <h1 style='text-align:center;'>This Novel has not published any chapters yet. Please come back later.</h1>
-                    </div>`
+                                    <h1 style='text-align:center;'>This Novel has not published any chapters yet. Please come back later.</h1>
+                                </div>`
             }
         }
 
-        // loadNovels();
         loadNovelDetail();
         getNovelChapters();
     </script>
