@@ -40,7 +40,7 @@ function getUser($conn, $id) {
 
 function createUser($conn, $data) {
     if (!isset($data['email'], $data['password'],$data['username'])) {
-        http_response_code(400);
+        http_response_code(response_code: 400);
         return ['error' => 'Email and password are required'];
     }
 
@@ -59,7 +59,7 @@ function createUser($conn, $data) {
 
     $hashed = password_hash($data['password'], PASSWORD_DEFAULT);
     $stmt = $conn->prepare("INSERT INTO nv_user (nv_user_email, nv_user_password, nv_user_sub_tier,nv_user_username, nv_user_role) VALUES (?, ?,?, ?, ?)");
-    $stmt->bind_param("ssis", $email, $hashed, $tier, $username, $role);
+    $stmt->bind_param("ssiss", $email, $hashed, $tier, $username, $role);
 
     return $stmt->execute()
         ? ['success' => true, 'id' => $stmt->insert_id]
@@ -76,7 +76,7 @@ function updateUser($conn, $data) {
     $email = trim($data['email']);
     $role = $data['role'] ?? null;
     $tier = isset($data['sub_tier']) ? (int)$data['sub_tier'] : null;
-
+    $username =  $data['username'];
     $stmt = $conn->prepare("SELECT 1 FROM nv_user WHERE nv_user_email = ? AND nv_user_id != ?");
     $stmt->bind_param("si", $email, $id);
     $stmt->execute();
@@ -87,11 +87,11 @@ function updateUser($conn, $data) {
 
     if (!empty($data['password'])) {
         $hashed = password_hash($data['password'], PASSWORD_DEFAULT);
-        $stmt = $conn->prepare("UPDATE nv_user SET nv_user_email = ?, nv_user_password = ?, nv_user_sub_tier = ?, nv_user_role = ? WHERE nv_user_id = ?");
-        $stmt->bind_param("ssisi", $email, $hashed, $tier, $role, $id);
+        $stmt = $conn->prepare("UPDATE nv_user SET nv_user_email = ?, nv_user_password = ?, nv_user_sub_tier = ?, nv_user_role = ?, nv_user_username = ? WHERE nv_user_id = ?");
+        $stmt->bind_param("ssisis", $email, $hashed, $tier, $role, $id,$username);
     } else {
-        $stmt = $conn->prepare("UPDATE nv_user SET nv_user_email = ?, nv_user_sub_tier = ?, nv_user_role = ? WHERE nv_user_id = ?");
-        $stmt->bind_param("sisi", $email, $tier, $role, $id);
+        $stmt = $conn->prepare("UPDATE nv_user SET nv_user_email = ?, nv_user_sub_tier = ?, nv_user_role = ?, nv_user_username = ? WHERE nv_user_id = ?");
+        $stmt->bind_param("sisis", $email, $tier, $role, $id,$username);
     }
 
     return $stmt->execute() ? ['success' => true] : ['error' => $stmt->error];
