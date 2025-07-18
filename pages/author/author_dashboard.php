@@ -1,8 +1,6 @@
 <?php
 require_once '../../auth/author.php';
 require_once HTML_HEADER;
-
-
 ?>
 
 <link rel="stylesheet" href="/chapter-one/style/table.css" type="text/css">

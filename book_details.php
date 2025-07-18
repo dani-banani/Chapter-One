@@ -248,7 +248,7 @@ require_once HTML_HEADER;
         const novelId = params.get('nv_novel_id');
         //Add link to "Read" anchor
         const readBtn = document.getElementById('readBtn');
-        readBtn.href = "book_read_page.php?nv_novel_id=" + novelId;
+        readBtn.href = "user_read_page.php?nv_novel_id=" + novelId;
 
         async function loadGenreMap() {
             const res = await axios.get(API.genre + '?list=1');
@@ -306,7 +306,7 @@ require_once HTML_HEADER;
             let counter = 1;
             box.innerHTML = data.map(chapter => (
                 `<div class='chapter-container'>
-                    <a class='chapter-title' href='book_read_page.php?nv_novel_id=${chapter.nv_novel_id}&nv_novel_chapter_number=${chapter.nv_novel_chapter_number}'>Chapter ${counter++ + ": " + chapter.nv_novel_chapter_title}</a>
+                    <a class='chapter-title' href='user_read_page.php?nv_novel_id=${chapter.nv_novel_id}&nv_novel_chapter_number=${chapter.nv_novel_chapter_number}'>Chapter ${counter++ + ": " + chapter.nv_novel_chapter_title}</a>
                     <div class='chapter-content'>${chapter.nv_novel_chapter_content}</div>
                 </div>`
 
