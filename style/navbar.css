@@ -19,7 +19,6 @@ header {
   }
 }
 
-
 #navbar-title {
   flex: 1;
   text-align: left;
@@ -112,4 +111,38 @@ header {
     display: flex;
     flex-direction: column;
   }
+}
+
+#profile-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+#dropdown-content {
+  display: none;
+  position: absolute;
+  top: 40px;
+  right: 0;
+  background-color: var(--primary-color);
+  min-width: 120px;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
+  z-index: 1;
+  border-radius: 4px;
+  text-align: left;
+}
+
+#dropdown-content a {
+  padding: 10px 15px;
+  display: block;
+  color: #333;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+#dropdown-content a:hover {
+  background-color: var(--primary-button-hover);
+}
+
+#profile-dropdown:hover #dropdown-content {
+  display: block;
 }

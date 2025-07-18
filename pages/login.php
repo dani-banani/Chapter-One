@@ -25,7 +25,7 @@ require_once HTML_HEADER;
                     <div class="errorMessage" id="passwordError"></div><br><br>
 
                     <label>Login as</label><br><br>
-                    <label><input type="radio" name='role' value="reader">Reader</label>
+                    <label><input type="radio" name='role' value="reader" required>Reader</label>
                     <label style="margin-left:30px;"><input type="radio" name='role' value="author">Author</label>
                     <br><br><br><br>
 

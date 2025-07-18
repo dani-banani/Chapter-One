@@ -24,7 +24,6 @@ if (isset($_SESSION['user_id'])) {
                 case 'author':
                     echo '<li><a href="' . AUTHOR_DASHBOARD_PAGE . '">Dashboard</a></li>';
                     echo '<li><a href="' . AUTHOR_CREATE_NOVEL_PAGE . '">Create Novel</a></li>';
-                    echo '<li><a href="' . LOGOUT_AUTHOR_API . '">Logout</a></li>';
                     break;
                 case 'user':
                     echo '<li> 
@@ -50,7 +49,6 @@ if (isset($_SESSION['user_id'])) {
                                 </div>
                             </div>
                         </li>';
-                    echo '<li><a href="">Trending</a></li>';
                     echo '<li><a href="">My Library</a></li>';
                     echo '<li><a href="' . LOGOUT_AUTHOR_API . '">Logout</a></li>';
                     break;
@@ -78,14 +76,20 @@ if (isset($_SESSION['user_id'])) {
                                 </div>
                             </div>
                         </li>';
-                    echo '<li><a href="">View Trending</a></li>';
-                    echo '<li><a href="">Login</a></li>';
+                    echo '<li><a href="' . LOGIN_PAGE . '">Login</a></li>';
                     break;
             }
             ?>
         </ul>
-        <div id="navbar-profile-pic">
-            <img src="https://picsum.photos/50" alt="Profile Picture">
-        </div>
+        <?php if ($userRole == 'author' || $userRole == 'user'): ?>
+            <div id="profile-dropdown">
+                <div id="navbar-profile-pic">
+                    <img src="https://picsum.photos/50" alt="Profile Picture">
+                </div>
+                <div id="dropdown-content">
+                    <a href="<?php echo $link = ($userRole == 'user') ? LOGOUT_USER_API : LOGOUT_AUTHOR_API ?>">Logout</a>
+                </div>
+            </div>
+        <?php endif ?>
     </nav>
 </header>

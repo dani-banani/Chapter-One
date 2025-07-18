@@ -59,7 +59,7 @@ require_once HTML_HEADER;
                     <input type="password" name="confirm_pass" id="confirm_pass">
                     <br><br><br><br>
                     <label>Register as</label><br><br>
-                    <label><input type="radio" name='role' value="reader">Reader</label>
+                    <label><input type="radio" name='role' value="reader" required>Reader</label>
                     <label style="margin-left:30px;"><input type="radio" name='role' value="author">Author</label>
                     <br><br><br><br>
 
