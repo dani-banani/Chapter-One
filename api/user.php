@@ -27,19 +27,19 @@ switch ($method) {
 echo json_encode($response);
 
 function getUsers($conn) {
-    $res = $conn->query("SELECT nv_user_id, nv_user_email, nv_user_sub_tier, nv_user_created_date, nv_user_role FROM nv_user");
+    $res = $conn->query("SELECT nv_user_id, nv_user_email,nv_user_username, nv_user_sub_tier, nv_user_created_date, nv_user_role FROM nv_user");
     return $res ? $res->fetch_all(MYSQLI_ASSOC) : ['error' => $conn->error];
 }
 
 function getUser($conn, $id) {
-    $stmt = $conn->prepare("SELECT nv_user_id, nv_user_email, nv_user_sub_tier, nv_user_created_date, nv_user_role FROM nv_user WHERE nv_user_id = ?");
+    $stmt = $conn->prepare("SELECT nv_user_id, nv_user_email,nv_user_username, nv_user_sub_tier, nv_user_created_date, nv_user_role FROM nv_user WHERE nv_user_id = ?");
     $stmt->bind_param("i", $id);
     $stmt->execute();
     return $stmt->get_result()->fetch_assoc() ?: ['error' => 'User not found'];
 }
 
 function createUser($conn, $data) {
-    if (!isset($data['email'], $data['password'])) {
+    if (!isset($data['email'], $data['password'],$data['username'])) {
         http_response_code(400);
         return ['error' => 'Email and password are required'];
     }
@@ -47,6 +47,7 @@ function createUser($conn, $data) {
     $email = trim($data['email']);
     $role = $data['role'] ?? 'reader';
     $tier = (int)($data['sub_tier'] ?? 0);
+    $username= $data['username'];
 
     $stmt = $conn->prepare("SELECT 1 FROM nv_user WHERE nv_user_email = ?");
     $stmt->bind_param("s", $email);
@@ -57,8 +58,8 @@ function createUser($conn, $data) {
     }
 
     $hashed = password_hash($data['password'], PASSWORD_DEFAULT);
-    $stmt = $conn->prepare("INSERT INTO nv_user (nv_user_email, nv_user_password, nv_user_sub_tier, nv_user_role) VALUES (?, ?, ?, ?)");
-    $stmt->bind_param("ssis", $email, $hashed, $tier, $role);
+    $stmt = $conn->prepare("INSERT INTO nv_user (nv_user_email, nv_user_password, nv_user_sub_tier,nv_user_username, nv_user_role) VALUES (?, ?,?, ?, ?)");
+    $stmt->bind_param("ssis", $email, $hashed, $tier, $username, $role);
 
     return $stmt->execute()
         ? ['success' => true, 'id' => $stmt->insert_id]
@@ -66,7 +67,7 @@ function createUser($conn, $data) {
 }
 
 function updateUser($conn, $data) {
-    if (!isset($data['id'], $data['email'])) {
+    if (!isset($data['id'], $data['email'], $data['username'])) {
         http_response_code(400);
         return ['error' => 'ID and email are required'];
     }
