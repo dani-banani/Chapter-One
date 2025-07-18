@@ -9,7 +9,7 @@ require_once HTML_HEADER;
     }
 
     tr {
-        grid-template-columns: 100px auto 150px 150px;
+        grid-template-columns: 100px auto 100px 150px;
     }
 
     .container {
@@ -159,7 +159,7 @@ require_once HTML_HEADER;
         for (const chapter of chapters.data) {
             const isChapterPublished = chapter.nv_novel_chapter_status == 'published';
             const chapterStatus = isChapterPublished ? 'Published' : 'Draft';
-            const chapterTitle = chapter.nv_novel_chapter_title == null ? 'Untitled' : chapter.nv_novel_chapter_title;
+            const chapterTitle = chapter.nv_novel_chapter_title == "" ? 'Untitled' : chapter.nv_novel_chapter_title;
 
             tableBody.innerHTML += `
             <tr class="chapter-item" data-chapter-number="${chapter.nv_novel_chapter_number}" data-novel-id="${chapter.nv_novel_id}" data-chapter-published-status="${isChapterPublished}">
@@ -203,8 +203,8 @@ require_once HTML_HEADER;
         try {
             const createChapterResponse = await axios.post('<?php echo NOVEL_CHAPTER_API; ?>', {
                 nv_novel_id: novelId,
-                nv_novel_chapter_title: null,
-                nv_novel_chapter_content: null,
+                nv_novel_chapter_title: "",
+                nv_novel_chapter_content: "",
             });
 
             if (createChapterResponse.status != 200) {
