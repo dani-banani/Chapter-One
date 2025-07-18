@@ -6,9 +6,11 @@ define('MAIN_CSS', ROOT_PATH . '/pages/css/main.css');
 define('HTML_HEADER', ROOT_PATH . '/components/html_header.php');
 
 //api
+define('LOGIN_AUTHOR_API', '/chapter-one/auth/login_author.php');
 define('LOGOUT_AUTHOR_API', '/chapter-one/auth/logout_author.php');
 define('NOVEL_API', '/chapter-one/api/novel.php');
 define('GENRE_API', '/chapter-one/api/genre.php');
+define('AUTHOR_API', '/chapter-one/api/author.php');
 define('NOVEL_CHAPTER_API', '/chapter-one/api/novel_chapter.php');
 
 // UI Components

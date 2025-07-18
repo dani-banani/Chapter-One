@@ -59,7 +59,7 @@ function createChapter($conn, $data) {
     $status = 'draft';
     $required = ['nv_novel_id', 'nv_novel_chapter_title', 'nv_novel_chapter_content'];
     foreach ($required as $field) {
-        if (isset($data[$field])) {
+        if (!isset($data[$field])) {
             http_response_code(response_code: 400);
             return ['error' => "$field is required"];
         }
