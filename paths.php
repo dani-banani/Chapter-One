@@ -30,4 +30,5 @@ define('AUTHOR_CREATE_NOVEL_PAGE', '/chapter-one/pages/author/author_create_nove
 define('AUTHOR_CREATE_CHAPTER_PAGE', '/chapter-one/pages/author/author_create_chapter.php');
 define('USER_DASHBOARD_PAGE', '/chapter-one/pages/user/dashboard.php');
 define('USER_READ_PAGE', '/chapter-one/pages/user/user_read_page.php');
+define('USER_SEARCH_PAGE', '/chapter-one/pages/user/search.php');
 ?>

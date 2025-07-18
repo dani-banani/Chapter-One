@@ -96,32 +96,6 @@ require_once HTML_HEADER;
             <div id="searchContainer">
 
                 <div class='novel-container'>
-
-                    <div class='novel-img'>
-                        <img src='../img/question.png' />
-                    </div>
-
-                    <div class='novel-details'>
-                        <h3 class='novel-title'><a href='book_details.php?nv_novel_id=${novel.nv_novel_id}'>Lady Toni's
-                                Great Escape</a>
-                        </h3>
-                        <div class='novel-description'>When life's being bitchy, it will 'eff you over. Who would have
-                            thought that when I, the Captain of the country's Special Forces, woke up after reading a
-                            recommended historical romance fantasy novel; I'd end up in the novel itself. Blah! Talk
-                            about</div>
-
-
-                        <div id="button-container">
-                            <a class="readBtn" href="">
-                                Read Now
-                            </a>
-                            <a class="libraryBtn">
-                                + Add to Library
-                            </a>
-                        </div>
-
-                    </div>
-
                 </div>
 
             </div>
@@ -139,11 +113,11 @@ require_once HTML_HEADER;
         rating: '<?php echo RATING_API ?>',
     };
 
-    //Get current URL
-    const params = new URLSearchParams(window.location.search);
-    const searchQuery = params.get("search");
-
-
+    <?php if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['searchQuery'])): ?>
+        const searchQuery = <?php echo json_encode($_POST['searchQuery']); ?>;
+    <?php else: ?>
+        const searchQuery = null;
+    <?php endif; ?>
 
     async function loadNovels() {
         //Declare container 
@@ -180,8 +154,6 @@ require_once HTML_HEADER;
                 `;
                 return;
             }
-
-
 
             box.innerHTML = (await Promise.all(data.map(async (novel) => {
                 // Fetch average rating of the book

@@ -12,10 +12,10 @@ if (isset($_SESSION['user_id'])) {
         <h1>Chapter One</h1>
     </div>
     <?php if ($userRole != 'author'): ?>
-        <div id="navbar-search-bar">
-            <input type="text" placeholder="Search...">
-            <a href=""><i class="fa-solid fa-magnifying-glass"></i></a>
-        </div>
+        <form action="search.php" method="POST" id="navbar-search-bar">
+            <input type="text" name='searchQuery' placeholder="Search...">
+            <button type="submit" id="searchSubmitBtn"><i class="fa-solid fa-magnifying-glass"></i></button>
+        </form>
     <?php endif ?>
 
     <nav id="navbar-links">
@@ -50,8 +50,8 @@ if (isset($_SESSION['user_id'])) {
                                 </div>
                             </div>
                         </li>';
-                    echo '<li><a href="' . LOGIN_PAGE . '">Trending</a></li>';
-                    echo '<li><a href="' . LOGIN_PAGE . '">My Library</a></li>';
+                    echo '<li><a href="">Trending</a></li>';
+                    echo '<li><a href="">My Library</a></li>';
                     echo '<li><a href="' . LOGOUT_AUTHOR_API . '">Logout</a></li>';
                     break;
                 default:
@@ -78,8 +78,8 @@ if (isset($_SESSION['user_id'])) {
                                 </div>
                             </div>
                         </li>';
-                    echo '<li><a href="' . LOGIN_PAGE . '">View Trending</a></li>';
-                    echo '<li><a href="' . LOGIN_PAGE . '">Login</a></li>';
+                    echo '<li><a href="">View Trending</a></li>';
+                    echo '<li><a href="">Login</a></li>';
                     break;
             }
             ?>
