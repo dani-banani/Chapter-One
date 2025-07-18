@@ -307,7 +307,7 @@ require_once HTML_HEADER;
                             <li>
                                 <div class='novel-container'>
                                     <div class='novel-img'>
-                                        <img src='img/question.png' />
+                                        <img src='../img/question.png' />
                                     </div>
                                     <div class='novel-details'>
                                         <h3 class='novel-title'><a href='book_details.php?nv_novel_id=${novel.nv_novel_id}'>${novel.nv_novel_title}</a></h3>

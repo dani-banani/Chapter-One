@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../../paths.php';
 require_once HTML_HEADER;
 ?>
 <style>
@@ -213,10 +214,10 @@ require_once HTML_HEADER;
 
     <script>
         const API = {
-            novel: '../api/novel.php',
-            genre: '../api/genre.php',
-            author: '../api/author.php',
-            rating: '../api/rating.php',
+            novel: '<?php echo NOVEL_API ?>',
+            genre: '<?php echo GENRE_API ?>',
+            author: '<?php echo AUTHOR_API ?>',
+            rating: '<?php echo RATING_API ?>',
         };
         let genreList = [];
 
@@ -363,7 +364,7 @@ require_once HTML_HEADER;
                             <li>
                                 <div class='novel-container'>
                                     <div class='novel-img'>
-                                        <img src='img/question.png' />
+                                        <img src='../img/question.png' />
                                     </div>
                                     <div class='novel-details'>
                                         <h3 class='novel-title'><a href='book_details.php?nv_novel_id=${novel.nv_novel_id}'>${novel.nv_novel_title}</a></h3>

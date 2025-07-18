@@ -1,8 +1,7 @@
 <?php
-require_once __DIR__ . '/../paths.php';
+require_once __DIR__ . '/../../paths.php';
 require_once HTML_HEADER;
 ?>
-
 <title>Chapter One</title>
 <style>
     .wrapper {
@@ -168,7 +167,7 @@ require_once HTML_HEADER;
     <div id="novel-container">
         <div class="wrapper novel-wrapper">
             <div id='novel-img'>
-                <img src='img/question.png' />
+                <img src='../img/question.png' />
             </div>
             <div id='novel-details'>
                 <div id="detail-container">

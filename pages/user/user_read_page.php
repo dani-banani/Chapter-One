@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../../paths.php';
 require_once HTML_HEADER;
 ?>
 <style>
@@ -226,7 +227,7 @@ require_once HTML_HEADER;
 
             <div id="intro">
                 <div id='novel-img'>
-                    <img src='img/question.png' />
+                    <img src='../img/question.png' />
                 </div>
                 <p id="novel-title">Loading....</p>
                 <p stle="font-size:9x;color:gray;">Author: <span id="novel-author">Author</span></p>
@@ -255,7 +256,7 @@ require_once HTML_HEADER;
     <script>
         const API = {
             novel: '/chapter-one/api/novel.php',
-            genre: '/chapter-one//api/genre.php',
+            genre: '/chapter-one/api/genre.php',
             author: '/chapter-one/api/author.php',
             rating: '/chapter-one/api/rating.php',
             novel_chapter: '/chapter-one/api/novel_chapter.php',

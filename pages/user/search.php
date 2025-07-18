@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '../paths.php';
+require_once __DIR__ . '/../../paths.php';
 require_once HTML_HEADER;
 ?>
 <style>
@@ -98,7 +98,7 @@ require_once HTML_HEADER;
                 <div class='novel-container'>
 
                     <div class='novel-img'>
-                        <img src='img/question.png' />
+                        <img src='../img/question.png' />
                     </div>
 
                     <div class='novel-details'>
@@ -172,7 +172,7 @@ require_once HTML_HEADER;
 
                 box.innerHTML = `
                 <div style='display:flex;flex-direction:column;justify-content:center;'>
-                <img src='img/crying-book.png' alt='crying book emoji' height='200px' width='200px' style='margin:50px auto;'>
+                <img src='../img/crying-book.png' alt='crying book emoji' height='200px' width='200px' style='margin:50px auto;'>
                     <h2 style='margin:auto;padding:0px;width:fit-content;text-align:center'>Please ensure that you're typing in the correct title</h2>
                 </div>
                 `;
@@ -197,7 +197,7 @@ require_once HTML_HEADER;
                 return `
                         <div class='novel-container'>
                             <div class='novel-img'>
-                                <img src='img/question.png' />
+                                <img src='../img/question.png' />
                             </div>
 
                             <div class='novel-details'>

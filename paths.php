@@ -9,6 +9,8 @@ define('LOGOUT_AUTHOR_API', '/chapter-one/auth/logout_author.php');
 define('NOVEL_API', '/chapter-one/api/novel.php');
 define('GENRE_API', '/chapter-one/api/genre.php');
 define('NOVEL_CHAPTER_API', '/chapter-one/api/novel_chapter.php');
+define('RATING_API', '/chapter-one/api/rating.php');
+define('AUTHOR_API', '/chapter-one/api/author.php');
 
 // UI Components
 define('NAVBAR_COMPONENT', ROOT_PATH . '/components/navbar.php');

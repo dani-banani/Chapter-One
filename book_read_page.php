@@ -232,7 +232,7 @@ require_once HTML_HEADER;
 
             <div id="intro">
                 <div id='novel-img'>
-                    <img src='img/question.png' />
+                    <img src='../img/question.png' />
                 </div>
                 <p id="novel-title">Loading....</p>
                 <p stle="font-size:9x;color:gray;">Author: <span id="novel-author">Author</span></p>
