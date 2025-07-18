@@ -21,18 +21,11 @@ label {
 
 
 form input[type="text"],
-input[type="password"],
-input[type="submit"] {
+input[type="password"]{
     margin-top: 10px;
     width: 450px;
     height: 35px;
     border-radius: 6px;
-}
-
-input[type="submit"] {
-    height: 40px;
-    font-size: 18px;
-    background-color: rgb(255, 183, 0);
 }
 
 input[type="text"]:focus,
@@ -56,4 +49,25 @@ input[type="password"]:focus {
     justify-content: center;
     align-items: center;
     margin-bottom: 100px;
+}
+
+button#submitButton {
+    width: 450px;
+    height: 40px;
+    font-size: 18px;
+    background-color: rgb(255, 183, 0);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 10px;
+    display: block;
+}
+
+button#submitButton:focus {
+    outline: none;
+    border: solid 2px orange;
+}
+
+button#submitButton:hover {
+    background-color: rgb(255, 200, 50);
 }

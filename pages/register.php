@@ -56,19 +56,15 @@ require_once HTML_HEADER;
                         <p class="invalid" id="charLength">Length between 8 and 12 characters</p>
                     </div>
                     <br><br>
-
                     <label for="confirm_pass">Confirm Password</label><br>
                     <input type="password" name="confirm_pass" id="confirm_pass">
                     <br><br>
-
                     <label for="agreement" style="font-size:14px;"><input type="checkbox" name="agreement" value="true"
                             id="agreement"> I agree
                         to the
                         the <a href="#">Terms and Condition</a> and <a href="#">Privacy Policy</a></label><br><br><br>
-                    <input type="submit" value="Sign Up" id="submitButton" disabled>
+                    <button type="button" id="submitButton" disabled>Sign Up</button>
                 </form>
-
-
                 <p>Already have an account? <a href="<?php echo LOGIN_PAGE; ?>" style='color:blue'>Login Here</a></p>
             </div>
         </div>
@@ -81,6 +77,8 @@ require_once HTML_HEADER;
     //Get fields
     const passField = document.getElementById("password");
     const confirm_passField = document.getElementById("confirm_pass");
+    const emailField = document.getElementById("email");
+    const usernameField = document.getElementById("username");
 
     // Constantly check for state as fields are being input
     passField.onkeyup = updateButtonState;
@@ -154,29 +152,37 @@ require_once HTML_HEADER;
         var passedReq = checkReq();
         var confirmedPass = confirmPass();
         var submitBtn = document.getElementById("submitButton");
-        submitBtn.disabled = !(passedReq && confirmedPass && passedUsername && passedEmail);
+        submitBtn.disabled = !(passedReq && confirmedPass);
     }
 
     //Run query when button is clicked
     document.getElementById('submitButton').onclick = async (e) => {
         try {
-            e.preventDefault();
-
-            const res = await axios.post('../api/author.php', {
+            const res = await axios.post('<?php echo AUTHOR_API; ?>', {
                 email: emailField.value,
                 username: usernameField.value,
                 password: passField.value,
             });
-            console.log(res.data);
-            alert(JSON.stringify(res.data));
-        } catch (err) {
-            if (err.response?.data?.error) {
-                alert('Error: ' + err.response.data.error);
+            if (res.data?.success) {
+            const loginRes = await axios.post('<?php echo LOGIN_AUTHOR_API; ?>', {
+                identifier: emailField.value,
+                password: passField.value,
+            });
+            if (loginRes.data?.success) {
+                window.location.href = '<?PHP echo AUTHOR_DASHBOARD_PAGE; ?>';
             } else {
-                alert('Server error');
+                alert('Login failed: ' + (loginRes.data?.error || 'Unknown error'));
             }
+        } else {
+            alert('Registration failed: ' + (res.data?.error || 'Unknown error'));
         }
-        alert(res);
+    } catch (err) {
+        if (err.response?.data?.error) {
+            alert('Error: ' + err.response.data.error);
+        } else {
+            alert('Server error');
+        }
+    }
     };
 </script>
 </body>
