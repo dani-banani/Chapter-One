@@ -21,6 +21,6 @@ define('AUTHOR_DASHBOARD_PAGE','/chapter-one/pages/author/author_dashboard.php')
 define('AUTHOR_NOVEL_VIEW_PAGE','/chapter-one/pages/author/author_novel_view.php');
 define('AUTHOR_EDIT_NOVEL_PAGE','/chapter-one/pages/author/author_edit_novel.php');
 define('AUTHOR_CREATE_NOVEL_PAGE','/chapter-one/pages/author/author_create_novel.php');
-define('AUTHOR_ADD_CHAPTER_PAGE','/chapter-one/pages/author/author_add_chapter_page.php');
+define('AUTHOR_CREATE_CHAPTER_PAGE','/chapter-one/pages/author/author_create_chapter.php');
 
 
