@@ -4,7 +4,8 @@ require_once __DIR__ . '/../database_connection.php';
 require_once __DIR__ . '/../vendor/autoload.php';
 header('Content-Type: application/json');
 
-function sanitize_html($html) {
+function sanitize_html($html)
+{
     static $purifier = null;
     if (!$purifier) {
         $config = HTMLPurifier_Config::createDefault();
@@ -15,16 +16,17 @@ function sanitize_html($html) {
 
 $method = $_SERVER['REQUEST_METHOD'];
 $response = match ($method) {
-    'GET'    => getChapters($conn, $_GET),
-    'POST'   => createChapter($conn, json_decode(file_get_contents('php://input'), true)),
-    'PUT'    => updateChapter($conn, json_decode(file_get_contents('php://input'), true)),
+    'GET' => getChapters($conn, $_GET),
+    'POST' => createChapter($conn, json_decode(file_get_contents('php://input'), true)),
+    'PUT' => updateChapter($conn, json_decode(file_get_contents('php://input'), true)),
     'DELETE' => deleteChapter($conn, $_GET),
-    default  => http_response_code(405) && ['error' => 'Unsupported method']
+    default => http_response_code(405) && ['error' => 'Unsupported method']
 };
 echo json_encode($response);
 
 
-function getChapters($conn, $filters) {
+function getChapters($conn, $filters)
+{
     $sql = "SELECT * FROM nv_novel_chapter";
     $values = [];
     $types = [];
@@ -51,7 +53,8 @@ function getChapters($conn, $filters) {
     return $res ? $res->fetch_all(MYSQLI_ASSOC) : ['error' => $stmt->error];
 }
 
-function createChapter($conn, $data) {
+function createChapter($conn, $data)
+{
     if (!isset($_SESSION['author_id'])) {
         http_response_code(401);
         return ['error' => 'Login required'];
@@ -59,7 +62,7 @@ function createChapter($conn, $data) {
     $status = 'draft';
     $required = ['nv_novel_id', 'nv_novel_chapter_title', 'nv_novel_chapter_content'];
     foreach ($required as $field) {
-        if (empty($data[$field])) {
+        if (isset($data[$field])) {
             http_response_code(response_code: 400);
             return ['error' => "$field is required"];
         }
@@ -80,12 +83,13 @@ function createChapter($conn, $data) {
     $insert = $conn->prepare("INSERT INTO nv_novel_chapter (nv_novel_chapter_content, nv_novel_chapter_title, nv_novel_chapter_number, nv_novel_id, nv_novel_chapter_status) VALUES (?, ?, ?, ?, ?)");
     $content = sanitize_html($data['nv_novel_chapter_content']);
     $title = sanitize_html($data['nv_novel_chapter_title']);
-    $insert->bind_param("ssiis", $content, $title, $newChapterNumber, $data['nv_novel_id'],$status);
+    $insert->bind_param("ssiis", $content, $title, $newChapterNumber, $data['nv_novel_id'], $status);
     return $insert->execute() ? ['success' => true, 'chapter_number' => $newChapterNumber] : ['error' => $insert->error];
 }
 
 
-function updateChapter($conn, $data) {
+function updateChapter($conn, $data)
+{
     if (!isset($data['nv_novel_id'], $data['nv_novel_chapter_number'])) {
         http_response_code(400);
         return ['error' => 'Novel ID and Chapter Number required'];
@@ -106,14 +110,14 @@ function updateChapter($conn, $data) {
     $fields = [];
     $values = [];
     $types = '';
-    foreach (['nv_novel_chapter_content', 'nv_novel_chapter_title','nv_novel_chapter_status'] as $field) {
+    foreach (['nv_novel_chapter_content', 'nv_novel_chapter_title', 'nv_novel_chapter_status'] as $field) {
         if (isset($data[$field])) {
             $fields[] = "$field = ?";
             $types .= 's';
             $values[] = sanitize_html($data[$field]);
         }
     }
-    
+
     if (empty($fields)) {
         return ['error' => 'No data to update'];
     }
@@ -127,7 +131,8 @@ function updateChapter($conn, $data) {
 }
 
 
-function deleteChapter($conn, $get) {
+function deleteChapter($conn, $get)
+{
     if (!isset($_SESSION['author_id'], $get['nv_novel_id'], $get['nv_novel_chapter_number'])) {
         http_response_code(400);
         return ['error' => 'Missing required parameters'];
