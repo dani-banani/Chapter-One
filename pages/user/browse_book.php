@@ -177,17 +177,6 @@ require_once HTML_HEADER;
         <main>
             <aside>
                 <h3 style="font-size:28px;font-weight:700;">Genre of Novels</h3>
-                <div id="btn_wrapper">
-                    <label class="lead_option male">
-                        <input type="radio" name="lead" value="male" checked>
-                        Male Lead
-                    </label>
-
-                    <label class="lead_option female">
-                        <input type="radio" name="lead" value="female">
-                        Female Lead
-                    </label>
-                </div>
 
                 <!-- Filters -->
                 <div id="filter-genre">

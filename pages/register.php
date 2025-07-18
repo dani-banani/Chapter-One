@@ -30,7 +30,6 @@ require_once HTML_HEADER;
 </head>
 
 <body>
-
     <main>
         <div id="form-wrapper">
             <h1 id="welcomeTitle">Create Your Account!</h1>
@@ -164,25 +163,25 @@ require_once HTML_HEADER;
                 password: passField.value,
             });
             if (res.data?.success) {
-            const loginRes = await axios.post('<?php echo LOGIN_AUTHOR_API; ?>', {
-                identifier: emailField.value,
-                password: passField.value,
-            });
-            if (loginRes.data?.success) {
-                window.location.href = '<?PHP echo AUTHOR_DASHBOARD_PAGE; ?>';
+                const loginRes = await axios.post('<?php echo LOGIN_AUTHOR_API; ?>', {
+                    identifier: emailField.value,
+                    password: passField.value,
+                });
+                if (loginRes.data?.success) {
+                    window.location.href = '<?PHP echo AUTHOR_DASHBOARD_PAGE; ?>';
+                } else {
+                    alert('Login failed: ' + (loginRes.data?.error || 'Unknown error'));
+                }
             } else {
-                alert('Login failed: ' + (loginRes.data?.error || 'Unknown error'));
+                alert('Registration failed: ' + (res.data?.error || 'Unknown error'));
             }
-        } else {
-            alert('Registration failed: ' + (res.data?.error || 'Unknown error'));
+        } catch (err) {
+            if (err.response?.data?.error) {
+                alert('Error: ' + err.response.data.error);
+            } else {
+                alert('Server error');
+            }
         }
-    } catch (err) {
-        if (err.response?.data?.error) {
-            alert('Error: ' + err.response.data.error);
-        } else {
-            alert('Server error');
-        }
-    }
     };
 </script>
 </body>
