@@ -1,5 +1,5 @@
 <?php
-    require_once __DIR__ . '/../paths.php';
+require_once __DIR__ . '/../paths.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -14,4 +14,4 @@
     <title>Chapter One</title>
     <link rel="stylesheet" href="/chapter-one/style/style.css" type="text/css">
     <link rel="stylesheet" href="/chapter-one/style/navbar.css" type="text/css">
-    
+    <link rel="stylesheet" href="/chapter-one/style/footer.css" type="text/css">

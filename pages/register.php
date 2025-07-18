@@ -22,11 +22,14 @@ require_once HTML_HEADER;
         content: "✘";
         padding-right: 15px;
     }
+
+    #submitButton:disabled {
+        background-color: rgb(121, 119, 114);
+    }
 </style>
 </head>
 
 <body>
-    <?php require_once NAVBAR_COMPONENT; ?>
 
     <main>
         <div id="form-wrapper">
@@ -62,11 +65,11 @@ require_once HTML_HEADER;
                             id="agreement"> I agree
                         to the
                         the <a href="#">Terms and Condition</a> and <a href="#">Privacy Policy</a></label><br><br><br>
-                    <input type="submit" value="Sign Up" id="submitButton">
+                    <input type="submit" value="Sign Up" id="submitButton" disabled>
                 </form>
 
 
-                <p>Already have an account? <a href="<?php echo LOGIN_PAGE; ?>">Login Here</a></p>
+                <p>Already have an account? <a href="<?php echo LOGIN_PAGE; ?>" style='color:blue'>Login Here</a></p>
             </div>
         </div>
     </main>
@@ -74,11 +77,12 @@ require_once HTML_HEADER;
 
 
 <script>
-    //Get Fields
-    passField = document.getElementById("password");
-    confirm_passField = document.getElementById("confirm_pass");
 
-    //Constantly check for state as fields are being input
+    //Get fields
+    const passField = document.getElementById("password");
+    const confirm_passField = document.getElementById("confirm_pass");
+
+    // Constantly check for state as fields are being input
     passField.onkeyup = updateButtonState;
     confirm_passField.onkeyup = updateButtonState;
 
@@ -150,15 +154,14 @@ require_once HTML_HEADER;
         var passedReq = checkReq();
         var confirmedPass = confirmPass();
         var submitBtn = document.getElementById("submitButton");
-        submitBtn.disabled = !(passedReq && confirmedPass);
+        submitBtn.disabled = !(passedReq && confirmedPass && passedUsername && passedEmail);
     }
 
     //Run query when button is clicked
     document.getElementById('submitButton').onclick = async (e) => {
         try {
             e.preventDefault();
-            var emailField = document.getElementById("email");
-            var usernameField = document.getElementById("username");
+
             const res = await axios.post('../api/author.php', {
                 email: emailField.value,
                 username: usernameField.value,
