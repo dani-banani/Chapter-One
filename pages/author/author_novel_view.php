@@ -9,7 +9,7 @@ require_once HTML_HEADER;
     }
 
     tr {
-        grid-template-columns: 100px auto 200px 200px;
+        grid-template-columns: 100px auto 100px 150px;
     }
 
     .container {
@@ -44,7 +44,7 @@ require_once HTML_HEADER;
             }
         }
 
-        .novel-actions {
+        .chapter-actions {
             flex: 1;
             display: flex;
             flex-direction: column;
@@ -87,14 +87,14 @@ require_once HTML_HEADER;
         .chapter-actions {
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
-            gap: 20px;
+            gap: 10px;
 
             .chapter-actions-icon-container {
+                width: 100%;
                 display: flex;
-                gap: 20px;
-                justify-content: center;
+                justify-content: space-evenly;
+
             }
 
             button {
@@ -159,11 +159,12 @@ require_once HTML_HEADER;
         for (const chapter of chapters.data) {
             const isChapterPublished = chapter.nv_novel_chapter_status == 'published';
             const chapterStatus = isChapterPublished ? 'Published' : 'Draft';
+            const chapterTitle = chapter.nv_novel_chapter_title == "" ? 'Untitled' : chapter.nv_novel_chapter_title;
 
             tableBody.innerHTML += `
             <tr class="chapter-item" data-chapter-number="${chapter.nv_novel_chapter_number}" data-novel-id="${chapter.nv_novel_id}" data-chapter-published-status="${isChapterPublished}">
                 <td class="chapter-number">${chapter.nv_novel_chapter_number}</td>
-                <td class="chapter-title">${chapter.nv_novel_chapter_title}</td>
+                <td class="chapter-title">${chapterTitle}</td>
                 <td class="chapter-status">${chapterStatus}</td>
                 <td class="chapter-actions">
                     <div class="chapter-actions-icon-container">
@@ -198,6 +199,26 @@ require_once HTML_HEADER;
         return true;
     }
 
+    async function createChapter(novelId) {
+        try {
+            const createChapterResponse = await axios.post('<?php echo NOVEL_CHAPTER_API; ?>', {
+                nv_novel_id: novelId,
+                nv_novel_chapter_title: "",
+                nv_novel_chapter_content: "",
+            });
+
+            if (createChapterResponse.status != 200) {
+                alert('Failed to save chapter');
+                return false;
+            }
+
+            return createChapterResponse.data;
+        } catch (error) {
+            console.log(error);
+            return false;
+        }
+    }
+
     async function deleteChapter(chapterNumber, novelId) {
         const deleteChapterResponse = await axios.delete('<?php echo NOVEL_CHAPTER_API; ?>', {
             params: {
@@ -216,8 +237,14 @@ require_once HTML_HEADER;
 
     function enableAddChapterButton(novelId) {
         const addChapterButton = document.querySelector('.add-chapter-button');
-        addChapterButton.addEventListener('click', () => {
-            window.location.href = '<?php echo AUTHOR_ADD_CHAPTER_PAGE; ?>?novel_id=' + novelId;
+        addChapterButton.addEventListener('click', async () => {
+            const createdChapter = await createChapter(novelId);
+            if (!createdChapter) {
+                alert('Failed to create chapter');
+                return;
+            }
+
+            window.location.href = `<?php echo AUTHOR_CREATE_CHAPTER_PAGE; ?>?novel_id=${novelId}&chapter_number=${createdChapter.chapter_number}`;
         });
     }
 
@@ -225,6 +252,27 @@ require_once HTML_HEADER;
         const novelChapters = document.querySelectorAll('.chapter-item');
 
         for (const novelChapter of novelChapters) {
+            const chapterNumber = novelChapter.dataset.chapterNumber;
+            const novelId = novelChapter.dataset.novelId;
+
+            const editChapterButton = novelChapter.querySelector('.edit-chapter-link');
+            editChapterButton.addEventListener('click', () => {
+                window.location.href = `<?php echo AUTHOR_CREATE_CHAPTER_PAGE; ?>?novel_id=${novelId}&chapter_number=${chapterNumber}`;
+            });
+
+            const deleteChapterButton = novelChapter.querySelector('.delete-chapter-link');
+            deleteChapterButton.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const isChapterDeleted = await deleteChapter(chapterNumber, novelId);
+                if (!isChapterDeleted) {
+                    alert('Failed to delete chapter');
+                    return;
+                }
+
+                alert('Chapter deleted successfully');
+                loadNovelChapters(novelId);
+            });
+
             const publishChapterButton = novelChapter.querySelector('.publish-chapter-button');
             publishChapterButton.addEventListener('click', async (e) => {
                 e.preventDefault();
@@ -239,22 +287,6 @@ require_once HTML_HEADER;
                 }
 
                 alert(`Chapter ${isChapterPublished ? 'unpublished' : 'published'} successfully`);
-                loadNovelChapters(novelId);
-            });
-
-            const deleteChapterButton = novelChapter.querySelector('.delete-chapter-link');
-            deleteChapterButton.addEventListener('click', async (e) => {
-                e.preventDefault();
-                const chapterNumber = novelChapter.dataset.chapterNumber;
-                const novelId = novelChapter.dataset.novelId;
-
-                const isChapterDeleted = await deleteChapter(chapterNumber, novelId);
-                if (!isChapterDeleted) {
-                    alert('Failed to delete chapter');
-                    return;
-                }
-
-                alert('Chapter deleted successfully');
                 loadNovelChapters(novelId);
             });
         }
@@ -315,7 +347,7 @@ require_once HTML_HEADER;
                     </div>
                     <p id="novel-genre">Genre</p>
                 </div>
-                <div class="novel-actions">
+                <div class="chapter-actions">
                     <button class="edit-novel-button"><i class="fa-solid fa-pen-to-square"></i>Edit Novel</button>
                     <button class="delete-novel-button"><i class="fa-solid fa-trash"></i>Delete Novel</button>
                 </div>
