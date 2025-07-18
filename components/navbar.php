@@ -24,13 +24,57 @@ if (isset($_SESSION['user_id'])) {
                     echo '<li><a href="' . LOGOUT_AUTHOR_API . '">Logout</a></li>';
                     break;
                 case 'user':
-                    echo '<li><a href="' . LOGIN_PAGE . '">Browse</a></li>';
+                    echo '<li> 
+                            <div id="dropdown">
+                                <a id="dropdownBtn">Browse</a>
+                                <div id="dropdown-content">
+                                    <div class="genreGroup">
+                                        <a href="browse_book.php">All</a>
+                                        <a href="browse_book.php?nv_genre_id=1">Fantasy</a>
+                                        <a href="browse_book.php?nv_genre_id=2">Science Fiction</a>
+                                        <a href="browse_book.php?nv_genre_id=3">Romance</a>
+                                    </div>
+                                    <div class="genreGroup">
+                                        <a href="browse_book.php?nv_genre_id=4">Mystery</a>
+                                        <a href="browse_book.php?nv_genre_id=5">Thriller</a>
+                                        <a href="browse_book.php?nv_genre_id=7">Horror</a>
+                                        <a href="browse_book.php?nv_genre_id=8">Adventure</a>
+                                    </div>
+                                    <div class="genreGroup">
+                                        <a href="browse_book.php?nv_genre_id=9">Drama</a>
+                                        <a href="browse_book.php?nv_genre_id=10">Comedy</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>';
                     echo '<li><a href="' . LOGIN_PAGE . '">Trending</a></li>';
                     echo '<li><a href="' . LOGIN_PAGE . '">My Library</a></li>';
                     echo '<li><a href="' . LOGOUT_AUTHOR_API . '">Logout</a></li>';
                     break;
                 default:
-                    echo '<li><a href="' . LOGIN_PAGE . '">Browse Books</a></li>';
+                    echo '<li> 
+                            <div id="dropdown">
+                                <a id="dropdownBtn">Browse</a>
+                                <div id="dropdown-content">
+                                    <div class="genreGroup">
+                                        <a href="browse_book.php">All</a>
+                                        <a href="browse_book.php?nv_genre_id=1">Fantasy</a>
+                                        <a href="browse_book.php?nv_genre_id=2">Science Fiction</a>
+                                        <a href="browse_book.php?nv_genre_id=3">Romance</a>
+                                    </div>
+                                    <div class="genreGroup">
+                                        <a href="browse_book.php?nv_genre_id=4">Mystery</a>
+                                        <a href="browse_book.php?nv_genre_id=5">Thriller</a>
+                                        <a href="browse_book.php?nv_genre_id=7">Horror</a>
+                                        <a href="browse_book.php?nv_genre_id=8">Adventure</a>
+                                    </div>
+                                    <div class="genreGroup">
+                                        <a href="browse_book.php?nv_genre_id=9">Drama</a>
+                                        <a href="browse_book.php?nv_genre_id=10">Comedy</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>';
                     echo '<li><a href="' . LOGIN_PAGE . '">View Trending</a></li>';
                     echo '<li><a href="' . LOGIN_PAGE . '">Login</a></li>';
                     break;
@@ -42,4 +86,3 @@ if (isset($_SESSION['user_id'])) {
         </div>
     </nav>
 </header>
- 
