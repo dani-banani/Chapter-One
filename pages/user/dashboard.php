@@ -2,28 +2,14 @@
 session_start();
 require_once __DIR__ . '/../../paths.php';
 require_once HTML_HEADER;
-echo var_dump($_SESSION);
 ?>
 <style>
-    * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-    }
-
-    body {
-        font-family: Arial, sans-serif;
-    }
-
     .slider {
         position: relative;
         width: 100%;
-        max-width: 1000px;
         height: 400px;
-        margin: 40px auto;
         overflow: hidden;
         border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
     }
 
     .slides {
@@ -43,10 +29,11 @@ echo var_dump($_SESSION);
 
     .slide-content {
         position: absolute;
-        bottom: 30px;
+        bottom: 50%;
         left: 30px;
         color: white;
         background: rgba(0, 0, 0, 0.5);
+        width: 500px;
         padding: 20px;
         border-radius: 8px;
     }
@@ -117,9 +104,9 @@ echo var_dump($_SESSION);
                     <p>Reconnect with the natural world.</p>
                 </div>
             </div>
-            <div class="slide" style="background-image: url('https://source.unsplash.com/featured/?technology');">
+            <div class="slide" style="background-color:blue;">
                 <div class="slide-content">
-                    <h2>Innovation</h2>
+                    <h2>Top Book of the Week</h2>
                     <p>Explore the future of technology.</p>
                 </div>
             </div>
@@ -130,6 +117,8 @@ echo var_dump($_SESSION);
 
         <div class="dots" id="dots"></div>
     </div>
+
+
 
     <script>
         const slides = document.querySelectorAll(".slide");

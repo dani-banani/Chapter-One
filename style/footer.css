@@ -11,7 +11,7 @@ footer {
 #footer-logo {
     display: flex;
     flex-direction: row;
-    gap: 30px;
+    gap: 10px;
 }
 
 #footer-title {

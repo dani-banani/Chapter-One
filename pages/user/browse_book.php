@@ -83,15 +83,15 @@ require_once HTML_HEADER;
 
         .novel-container {
             display: grid;
-            grid-template-columns: 90px auto;
+            grid-template-columns: 110px auto;
             flex-direction: row;
             column-gap: 20px;
 
             .novel-img {
                 grid-column: 1/2;
                 background-color: black;
-                height: 98px;
-                width: 70px;
+                height: 120px;
+                width: 90px;
                 padding: 10px;
                 border-radius: 12px;
                 display: flex;
@@ -102,11 +102,15 @@ require_once HTML_HEADER;
 
             .novel-details {
                 grid-column: 2/3;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
 
                 .novel-title {
+                    text-align: left;
                     font-size: 18px;
                     font-weight: bold;
-                    margin: 0 auto;
+                    margin: 0;
                 }
 
                 .novel-title a {
@@ -114,7 +118,8 @@ require_once HTML_HEADER;
                 }
 
                 .novel-description {
-                    margin: 0 auto;
+                    margin: 0;
+                    text-align: justify;
                 }
 
                 .novel-view-count {
@@ -338,8 +343,8 @@ require_once HTML_HEADER;
 
                     // Limit description length
                     let modifiedDesc = novel.nv_novel_description;
-                    if (modifiedDesc.length > 20) {
-                        modifiedDesc = modifiedDesc.substring(0, 20) + '...';
+                    if (modifiedDesc.length > 100) {
+                        modifiedDesc = modifiedDesc.substring(0, 100) + '...';
                     }
                     return `
                             <li>
@@ -349,7 +354,7 @@ require_once HTML_HEADER;
                                     </div>
                                     <div class='novel-details'>
                                         <h3 class='novel-title'><a href='book_details.php?nv_novel_id=${novel.nv_novel_id}'>${novel.nv_novel_title}</a></h3>
-                                        <div class='novel-description'>${novel.nv_novel_description}</div>
+                                        <div class='novel-description'>${modifiedDesc}</div>
                                         <div class='novel-stats'>
                                             <p class='novel-view-count'><i class='fa-solid fa-eye'></i>&nbsp; ${novel.nv_novel_view_count}</p>
                                             <p class='novel-view-count'><i class='fa-solid fa-star'></i>&nbsp; ${avgRating}</p>

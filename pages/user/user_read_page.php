@@ -214,9 +214,12 @@ require_once HTML_HEADER;
 
 <body>
     <header style="position:fixed;top:0;z-index:999;">
-        <div id="navbar-title">
-            <h1>Chapter One</h1>
-        </div>
+        <a id="homeBtn" href="<?php echo USER_DASHBOARD_PAGE ?>">
+            <div id="website-logo">
+                <img src="../pages/../img/footer-book-img.png" height="60px" width="60px" alt="book img">
+                <p id='navbar-title'>Chapter One</p>
+            </div>
+        </a>
         <nav id="navbar-links">
             <ul>
                 <li><a>Library</a></li>

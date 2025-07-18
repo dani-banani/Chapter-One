@@ -9,7 +9,19 @@ if (isset($_SESSION['user_id'])) {
 
 <header>
     <div id="navbar-title">
-        <h1>Chapter One</h1>
+        <?php if ($userRole != 'author'): ?>
+            <a id="homeBtn" href="<?php echo USER_DASHBOARD_PAGE ?>">
+                <div id="website-logo">
+                    <img src="../pages/../img/footer-book-img.png" height="60px" width="60px" alt="book img">
+                    <p id='navbar-title'>Chapter One</p>
+                </div>
+            </a>
+        <?php else: ?>
+            <div id="footer-logo">
+                <img src="../pages/../img/footer-book-img.png" height="60px" width="60px" alt="book img">
+                <p id='footer-title'>Chapter One</p>
+            </div>
+        <?php endif ?>
     </div>
     <?php if ($userRole != 'author'): ?>
         <form action="search.php" method="POST" id="navbar-search-bar">
@@ -50,7 +62,6 @@ if (isset($_SESSION['user_id'])) {
                             </div>
                         </li>';
                     echo '<li><a href="">My Library</a></li>';
-                    echo '<li><a href="' . LOGOUT_AUTHOR_API . '">Logout</a></li>';
                     break;
                 default:
                     echo '<li> 
