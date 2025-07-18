@@ -177,17 +177,6 @@ require_once HTML_HEADER;
         <main>
             <aside>
                 <h3 style="font-size:28px;font-weight:700;">Genre of Novels</h3>
-                <div id="btn_wrapper">
-                    <label class="lead_option male">
-                        <input type="radio" name="lead" value="male" checked>
-                        Male Lead
-                    </label>
-
-                    <label class="lead_option female">
-                        <input type="radio" name="lead" value="female">
-                        Female Lead
-                    </label>
-                </div>
 
                 <!-- Filters -->
                 <div id="filter-genre">
@@ -200,10 +189,8 @@ require_once HTML_HEADER;
                 <div>
                     <h3 id="genreTitle"></h3>
                     <p id="genreIntro"></p>
+                    <hr>
                 </div>
-                <hr>
-                <h3>Books</h3>
-                <hr>
                 <div id="novel-list-container">
                     <ul id="novel-list">Loading…</ul>
                 </div>
@@ -227,14 +214,6 @@ require_once HTML_HEADER;
         const params = new URLSearchParams(window.location.search);
         //Get genre ID from request param
         const genreId = params.get('nv_genre_id');
-
-
-        //TODO Remove this part, unnecessary
-        document.querySelectorAll('input[name="lead"]').forEach(radio => {
-            radio.addEventListener('change', function () {
-                console.log(`Selected lead: ${this.value}`);
-            });
-        });
 
         // Function to load all genres
         async function loadGenres() {
@@ -383,7 +362,6 @@ require_once HTML_HEADER;
             } catch (ex) {
                 box.textContent = ex.response?.data?.error || 'Error loading novels';
             }
-
         }
 
         function escapeHtml(str) {
@@ -396,8 +374,11 @@ require_once HTML_HEADER;
             const genreButtons = document.querySelectorAll('.genre-button');
 
             genreButtons.forEach(button => {
-                // Apply isSelected class if URL matches
-                if (button.href.includes(`nv_genre_id=${genreId}`) || (genreId == null && button.href.includes('browse_book.php?all'))) {
+                const url = new URL(button.href);
+                const buttonGenreId = url.searchParams.get('nv_genre_id');
+
+                if ((genreId == null && url.href.includes('browse_book.php?all')) ||
+                    (genreId != null && genreId === buttonGenreId)) {
                     button.classList.add('isSelected');
                 }
             });
