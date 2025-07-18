@@ -1,6 +1,6 @@
 <footer>
     <div id="footer-logo">
-        <img src="../pages/img/footer-book-img.png" height="60px" width="60px" alt="book img">
+        <img src="../pages/../img/footer-book-img.png" height="60px" width="60px" alt="book img">
         <p id='footer-title'>Chapter One</p>
     </div>
 
