@@ -16,7 +16,7 @@ if (!isset($_SESSION['user_id']) && isset($_COOKIE['user_login_token'])) {
 }
 
 if (!isset($_SESSION['user_id'])) {
-    header('Location: ../Chapter-One-main/Chapter-One-main/pages/login.html');
+    header('Location: ' . LOGIN_PAGE);
     exit;
 }
 

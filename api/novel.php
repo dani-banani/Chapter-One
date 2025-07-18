@@ -4,7 +4,8 @@ require_once __DIR__ . '/../database_connection.php';
 require_once __DIR__ . '/../vendor/autoload.php';
 header('Content-Type: application/json');
 
-function sanitize_html($html) {
+function sanitize_html($html)
+{
     static $purifier = null;
     if (!$purifier) {
         $config = HTMLPurifier_Config::createDefault();
@@ -15,15 +16,16 @@ function sanitize_html($html) {
 
 $method = $_SERVER['REQUEST_METHOD'];
 $response = match ($method) {
-    'GET'    => getNovel($conn),
-    'POST'   => createNovel($conn, json_decode(file_get_contents('php://input'), true)),
-    'PUT'    => updateNovel($conn, json_decode(file_get_contents('php://input'), true)),
+    'GET' => getNovel($conn),
+    'POST' => createNovel($conn, json_decode(file_get_contents('php://input'), true)),
+    'PUT' => updateNovel($conn, json_decode(file_get_contents('php://input'), true)),
     'DELETE' => isset($_GET['nv_novel_id']) ? deleteNovel($conn, $_GET['nv_novel_id']) : ['error' => 'nv_novel_id is required'],
-    default  => http_response_code(405) && ['error' => 'Unsupported method']
+    default => http_response_code(405) && ['error' => 'Unsupported method']
 };
 
 echo json_encode($response);
-function getNovel($conn) {
+function getNovel($conn)
+{
     $query = "SELECT DISTINCT n.* FROM nv_novel n";
     $joinGenre = false;
     $conditions = [];
@@ -55,7 +57,8 @@ function getNovel($conn) {
     }
     $query .= " ORDER BY n.nv_novel_id DESC";
     $stmt = $conn->prepare($query);
-    if (!$stmt) return ['error' => $conn->error];
+    if (!$stmt)
+        return ['error' => $conn->error];
     if (!empty($params)) {
         $stmt->bind_param($types, ...$params);
     }
@@ -67,7 +70,8 @@ function getNovel($conn) {
     return $result->fetch_all(MYSQLI_ASSOC);
 }
 
-function createNovel($conn, $data) {
+function createNovel($conn, $data)
+{
     if (!isset($_SESSION['author_id'])) {
         http_response_code(401);
         return ['error' => 'Login required'];
@@ -97,14 +101,16 @@ function createNovel($conn, $data) {
     $types = str_repeat('s', count($columns));
     $values = array_values($columns);
     $stmt = $conn->prepare("INSERT INTO nv_novel ($colNames) VALUES ($placeholders)");
-    if (!$stmt) return ['error' => $conn->error];
+    if (!$stmt)
+        return ['error' => $conn->error];
     $stmt->bind_param($types, ...$values);
     return $stmt->execute()
         ? ['success' => true, 'id' => $stmt->insert_id]
         : ['error' => $stmt->error];
 }
 
-function updateNovel($conn, $data) {
+function updateNovel($conn, $data)
+{
     if (!isset($data['nv_novel_id'])) {
         http_response_code(400);
         return ['error' => 'nv_novel_id is required'];
@@ -141,14 +147,16 @@ function updateNovel($conn, $data) {
     $values[] = $id;
     $sql = "UPDATE nv_novel SET " . implode(', ', $updates) . " WHERE nv_novel_id = ?";
     $stmt = $conn->prepare($sql);
-    if (!$stmt) return ['error' => $conn->error];
+    if (!$stmt)
+        return ['error' => $conn->error];
     $stmt->bind_param($types, ...$values);
     return $stmt->execute()
         ? ['success' => true]
         : ['error' => $stmt->error];
 }
 
-function deleteNovel($conn, $id) {
+function deleteNovel($conn, $id)
+{
     if (!isset($_SESSION['author_id'])) {
         http_response_code(401);
         return ['error' => 'Login required'];
