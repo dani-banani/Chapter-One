@@ -2,11 +2,13 @@
 require_once __DIR__ . '/../paths.php';
 require_once HTML_HEADER;
 ?>
+
 <link rel="stylesheet" href="/chapter-one/style/formStyle.css" type="text/css">
 <title>Chapter One</title>
 </head>
 
 <body>
+    <?php require_once NAVBAR_COMPONENT; ?>
     <main>
         <div id="form-wrapper">
             <h1 id="welcomeTitle">Welcome</h1>

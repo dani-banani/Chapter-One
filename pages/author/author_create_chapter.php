@@ -7,6 +7,13 @@ require_once HTML_HEADER;
 <style>
     main {
         padding: 40px 80px;
+        flex: 1;
+    }
+
+    body{
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
     }
 
     .container {
@@ -229,6 +236,7 @@ require_once HTML_HEADER;
             </div>
         </div>
     </main>
+    <?php require_once FOOTER_COMPONENT; ?>
 </body>
 
 </html>

@@ -4,8 +4,15 @@ require_once HTML_HEADER;
 ?>
 <link rel="stylesheet" href="/chapter-one/style/table.css" type="text/css">
 <style>
+    body{
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
     main {
         padding: 40px 80px;
+        flex: 1;
     }
 
     tr {
@@ -156,6 +163,18 @@ require_once HTML_HEADER;
             }
         });
 
+        if (chapters.data.length == 0) {
+            tableBody.innerHTML = `
+                <tr class="empty-table-row">
+                    <td colspan="4">
+                        <div>
+                            <i>No chapters published yet. Add a new chapter to get started.</i>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }
+
         for (const chapter of chapters.data) {
             const isChapterPublished = chapter.nv_novel_chapter_status == 'published';
             const chapterStatus = isChapterPublished ? 'Published' : 'Draft';
@@ -214,7 +233,6 @@ require_once HTML_HEADER;
 
             return createChapterResponse.data;
         } catch (error) {
-            console.log(error);
             return false;
         }
     }
@@ -352,14 +370,14 @@ require_once HTML_HEADER;
                     <button class="delete-novel-button"><i class="fa-solid fa-trash"></i>Delete Novel</button>
                 </div>
             </div>
-            <div class="novel-stats">
+            <!-- <div class="novel-stats">
                 <h4>Status</h4>
                 <h4>Novel Tier</h4>
                 <h4>Chapters</h4>
                 <h4>Pages</h4>
                 <h4>Rating</h4>
                 <h4>Views</h4>
-            </div>
+            </div> -->
             <div class="novel-chapters">
                 <div class="table-title-row">
                     <h2>Book Chapters</h2>
@@ -389,4 +407,5 @@ require_once HTML_HEADER;
             </div>
         </div>
     </main>
+    <?php require_once FOOTER_COMPONENT; ?>
 </body>
