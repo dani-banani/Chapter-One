@@ -11,7 +11,7 @@ require_once HTML_HEADER;
         margin-top: 30px;
     }
 
-    #searchContainer {
+    #libraryContainer {
         display: flex;
         gap: 50px;
         margin-top: 50px;
@@ -19,16 +19,15 @@ require_once HTML_HEADER;
 
 
     .novel-container {
-        display: grid;
-        grid-template-columns: 140px auto;
-        flex-direction: row;
-        column-gap: 20px;
+        display: flex;
+        flex-direction: column;
+        width: 110px;
+        row-gap: 20px;
 
         .novel-img {
-            grid-column: 1/2;
             background-color: black;
             height: 150px;
-            width: 110px;
+            width: 100%;
             padding: 10px;
             border-radius: 12px;
             display: flex;
@@ -37,12 +36,6 @@ require_once HTML_HEADER;
         }
 
         .novel-details {
-            grid-column: 2/3;
-            display: flex;
-            flex-direction: column;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            gap: 20px;
 
             .novel-title {
                 font-size: 18px;
@@ -53,36 +46,12 @@ require_once HTML_HEADER;
             .novel-title a {
                 text-decoration: none;
             }
-
-            #button-container {
-                margin-top: 40px;
-            }
-
-            .readBtn,
-            .libraryBtn {
-                padding: 10px 15px;
-                border-radius: 8px;
-                border: 0px;
-                cursor: pointer;
-                text-decoration: none;
-                font-size: 13px;
-            }
-
-            .readBtn {
-                background-color: #DB6D29;
-                color: white;
-                margin-right: 20px;
-            }
-
-            .libraryBtn {
-                background-color: white;
-                border: 1px solid #DB6D29;
-            }
-
-            .novel-description {
-                margin: 0;
-            }
         }
+    }
+
+    #libraryBackground {
+        background-color: var(--primary-color);
+        padding: 30px;
     }
 </style>
 </head>
@@ -91,10 +60,13 @@ require_once HTML_HEADER;
     <?php require_once NAVBAR_COMPONENT; ?>
 
     <main>
+        <div id="libraryBackground">
+            <div class="wrapper">
+                <h1 id="libraryTitle">Library</h1>
+            </div>
+        </div>
         <div class="wrapper">
-            <h1 id="searchResult">Loading....</h1>
-            <hr>
-            <div id="searchContainer">
+            <div id="libraryContainer">
 
                 <div class='novel-container'>
 
@@ -106,21 +78,6 @@ require_once HTML_HEADER;
                         <h3 class='novel-title'><a href='book_details.php?nv_novel_id=${novel.nv_novel_id}'>Lady Toni's
                                 Great Escape</a>
                         </h3>
-                        <div class='novel-description'>When life's being bitchy, it will 'eff you over. Who would have
-                            thought that when I, the Captain of the country's Special Forces, woke up after reading a
-                            recommended historical romance fantasy novel; I'd end up in the novel itself. Blah! Talk
-                            about</div>
-
-
-                        <div id="button-container">
-                            <a class="readBtn" href="">
-                                Read Now
-                            </a>
-                            <a class="libraryBtn">
-                                + Add to Library
-                            </a>
-                        </div>
-
                     </div>
 
                 </div>
@@ -136,15 +93,7 @@ require_once HTML_HEADER;
     //API Paths
     const API = {
         novel: '<?php echo NOVEL_API ?>',
-        genre: '<?php echo GENRE_API ?>',
-        author: '<?php echo AUTHOR_API ?>',
-        rating: '<?php echo RATING_API ?>',
     };
-
-    //Get current URL
-    const params = new URLSearchParams(window.location.search);
-    const searchQuery = params.get("search");
-
 
 
     async function loadNovels() {
@@ -155,12 +104,7 @@ require_once HTML_HEADER;
         document.title = searchQuery;
 
         try {
-            // //Fetch all books and genre
-            // const genreMapping = await loadAllMappings();
-            // //Fetch all genre id, map to assoc array [{genre_id => genre_value}], and then to object {genre_id : genre_value}
-            // const genreMap = await loadGenreMap();
 
-            //Get genre request, and append to the Request Param
             const requestParam = `?nv_novel_title=${searchQuery}`;
 
             //call novel API to fetch books based on the genre_id with the status of published
