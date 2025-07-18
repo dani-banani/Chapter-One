@@ -114,7 +114,7 @@ require_once HTML_HEADER;
     .chapterContainer {
         width: 700px;
         margin: auto;
-        word-break: break-all;
+        word-break: break-word;
 
         .chapterTitle {
             font-size: 30px;

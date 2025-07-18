@@ -110,6 +110,12 @@ require_once HTML_HEADER;
         }
     }
 
+    #novel-sypnosis {
+        font-size: 18px;
+        text-align: justify;
+        line-height: 1.5;
+    }
+
     #chapterSection {
         display: none;
 
@@ -120,6 +126,8 @@ require_once HTML_HEADER;
         padding: 20px 10px;
         margin: 50px 10px;
         height: 100px;
+        word-break: break-word;
+        overflow: hidden;
 
         .chapter-title {
             font-size: 24px;
@@ -129,15 +137,14 @@ require_once HTML_HEADER;
             transition: all 0.3s ease-in-out;
         }
 
+        .chapter-content {
+            padding: 10px;
+        }
+
         .chapter-content p {
-            font-size: 18px;
+            font-size: 16px;
             margin-bottom: 0px;
-            overflow: hidden;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            /* number of lines to show */
-            line-clamp: 2;
-            -webkit-box-orient: vertical;
+            line-height: 1.5;
         }
 
     }
@@ -150,7 +157,6 @@ require_once HTML_HEADER;
     .chapter-container:nth-child(even) {
         background-color: #fff1e9ff;
         border-radius: 8px;
-        padding: 10px;
     }
 
     #chapter-count {
