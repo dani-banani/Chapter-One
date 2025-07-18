@@ -213,6 +213,8 @@ require_once HTML_HEADER;
 
 
     <script>
+        //API Paths
+
         const API = {
             novel: '<?php echo NOVEL_API ?>',
             genre: '<?php echo GENRE_API ?>',

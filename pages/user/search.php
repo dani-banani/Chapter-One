@@ -131,12 +131,14 @@ require_once HTML_HEADER;
 
 
 <script>
+    //API Paths
     const API = {
-        novel: '/chapter-one/api/novel.php',
-        genre: '/chapter-one/api/genre.php',
-        author: '/chapter-one/api/author.php',
-        rating: '/chapter-one/api/rating.php',
+        novel: '<?php echo NOVEL_API ?>',
+        genre: '<?php echo GENRE_API ?>',
+        author: '<?php echo AUTHOR_API ?>',
+        rating: '<?php echo RATING_API ?>',
     };
+
     //Get current URL
     const params = new URLSearchParams(window.location.search);
     const searchQuery = params.get("search");

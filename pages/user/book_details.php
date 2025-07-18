@@ -233,13 +233,13 @@ require_once HTML_HEADER;
         }
 
 
-
+        //API Paths
         const API = {
-            novel: '../api/novel.php',
-            genre: '../api/genre.php',
-            author: '../api/author.php',
-            rating: '../api/rating.php',
-            novel_chapter: '../api/novel_chapter.php',
+            novel: '<?php echo NOVEL_API ?>',
+            genre: '<?php echo GENRE_API ?>',
+            author: '<?php echo AUTHOR_API ?>',
+            rating: '<?php echo RATING_API ?>',
+            novel_chapter: '<?php echo NOVEL_CHAPTER_API ?>',
         };
 
         let genreList = [];

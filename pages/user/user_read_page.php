@@ -254,12 +254,13 @@ require_once HTML_HEADER;
     </div>
 
     <script>
+        //API Paths
         const API = {
-            novel: '/chapter-one/api/novel.php',
-            genre: '/chapter-one/api/genre.php',
-            author: '/chapter-one/api/author.php',
-            rating: '/chapter-one/api/rating.php',
-            novel_chapter: '/chapter-one/api/novel_chapter.php',
+            novel: '<?php echo NOVEL_API ?>',
+            genre: '<?php echo GENRE_API ?>',
+            author: '<?php echo AUTHOR_API ?>',
+            rating: '<?php echo RATING_API ?>',
+            novel_chapter: '<?php echo NOVEL_CHAPTER_API ?>',
         };
 
         const contentBox = document.getElementById('content');
