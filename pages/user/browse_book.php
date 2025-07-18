@@ -215,14 +215,6 @@ require_once HTML_HEADER;
         //Get genre ID from request param
         const genreId = params.get('nv_genre_id');
 
-
-        //TODO Remove this part, unnecessary
-        document.querySelectorAll('input[name="lead"]').forEach(radio => {
-            radio.addEventListener('change', function () {
-                console.log(`Selected lead: ${this.value}`);
-            });
-        });
-
         // Function to load all genres
         async function loadGenres() {
             try {
@@ -370,7 +362,6 @@ require_once HTML_HEADER;
             } catch (ex) {
                 box.textContent = ex.response?.data?.error || 'Error loading novels';
             }
-
         }
 
         function escapeHtml(str) {
