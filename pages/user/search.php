@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once __DIR__ . '/../../paths.php';
 require_once HTML_HEADER;
 ?>
@@ -58,13 +59,14 @@ require_once HTML_HEADER;
             }
 
             .readBtn,
-            .libraryBtn {
-                padding: 10px 15px;
+            .libraryBtn,
+            .fakeLibraryBtn {
+                padding: 10px 30px;
                 border-radius: 8px;
                 border: 0px;
                 cursor: pointer;
                 text-decoration: none;
-                font-size: 13px;
+                border: 1px solid black;
             }
 
             .readBtn {
@@ -73,10 +75,11 @@ require_once HTML_HEADER;
                 margin-right: 20px;
             }
 
-            .libraryBtn {
+            .libraryBtn,
+            .fakeLibraryBtn {
                 background-color: white;
-                border: 1px solid #DB6D29;
             }
+
 
             .novel-description {
                 margin: 0;
@@ -101,6 +104,20 @@ require_once HTML_HEADER;
             </div>
         </div>
     </main>
+
+    <!-- Login prompt container -->
+    <div id="popup-container" class="overlay-container">
+        <div class="popup_wrapper">
+            <h1 class="popup_title">Before we proceed..</h1>
+            <button class="popup_closeBtn" onclick="togglePopup('popup-container')"><img src="../img/close_Icon.png"
+                    width="20px" height="20px"></button>
+            <h3 style="margin-bottom:70px;">Please Login to Continue</h3>
+            <a style="padding:10px 70px;background-color:black;border-radius:12px;color:white;text-decoration:none;"
+                href="<?php echo LOGIN_PAGE ?>">Login Now!</a>
+            <p style="font-size:14px;">Are you new here? <a style="font-size:14px;color:blue;"
+                    href="<?php echo REGISTER_PAGE ?>">Register now!</a></p>
+        </div>
+    </div>
 </body>
 
 
@@ -111,7 +128,11 @@ require_once HTML_HEADER;
         genre: '<?php echo GENRE_API ?>',
         author: '<?php echo AUTHOR_API ?>',
         rating: '<?php echo RATING_API ?>',
+        library: '<?php echo LIBRARY_API ?>',
     };
+    //Get userID
+    const userID = <?php echo json_encode(($userRole == 'user') ? $_SESSION['user_id'] : null); ?>;
+
 
     <?php if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['searchQuery'])): ?>
         const searchQuery = <?php echo json_encode($_POST['searchQuery']); ?>;
@@ -127,15 +148,10 @@ require_once HTML_HEADER;
         document.title = searchQuery;
 
         try {
-            // //Fetch all books and genre
-            // const genreMapping = await loadAllMappings();
-            // //Fetch all genre id, map to assoc array [{genre_id => genre_value}], and then to object {genre_id : genre_value}
-            // const genreMap = await loadGenreMap();
-
-            //Get genre request, and append to the Request Param
+            //Get book title
             const requestParam = `?nv_novel_title=${searchQuery}`;
 
-            //call novel API to fetch books based on the genre_id with the status of published
+            //call novel API to fetch books based on the title
             console.log("Query" + API.novel + requestParam)
             const { data } = await axios.get(API.novel + requestParam);
             console.log(data);
@@ -168,7 +184,7 @@ require_once HTML_HEADER;
                 if (modifiedDesc.length > 50) {
                     modifiedDesc = modifiedDesc.substring(0, 50) + '...';
                 }
-                return `
+                htmlHead = `
                         <div class='novel-container'>
                             <div class='novel-img'>
                                 <img src='../img/question.png' />
@@ -188,20 +204,86 @@ require_once HTML_HEADER;
                                 <div id="button-container">
                                     <a class="readBtn" href="user_read_page.php?nv_novel_id=${novel.nv_novel_id}&nv_novel_chapter_number=1">
                                         Read Now
-                                    </a>
-                                    <a class="libraryBtn" data-novel-id="${novel.nv_novel_id}">
-                                        + Add to Library
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        `;
+                                    </a> `
 
+                if (!userID) {
+                    buttonContent = `<a class="fakeLibraryBtn" onclick="togglePopup('popup-container')">+ Add to Library </a>`
+                } else {
+                    buttonContent = await generateLibraryButton(novel.nv_novel_id);
+                }
+
+                htmlTail = `</div></div></div> `;
+
+                return htmlHead + buttonContent + htmlTail;
             }))).join('');
         } catch (ex) {
             box.innerHTML = ex.response?.data?.error || '<p>Error loading novels<p>';
         }
+    }
 
+    //Check if the user has the book in library
+    async function generateLibraryButton(novelId) {
+        //If user is not logged in, ignore
+        if (!userID) {
+            return;
+        }
+
+        try {
+            const requestParam = `?nv_user_id=${userID}&nv_novel_id=${novelId}`;
+            const res = await axios.get(API.library + requestParam);
+            console.log(res.data);
+            if (!res.data.length) {
+                return `<a class="libraryBtn" onclick="addToLibrary('${novelId}')">+ Add to Library </a>`;
+            } else {
+                return `<a class="libraryBtn" onclick="removeFromLibrary('${novelId}')">Remove from Library</a>`;
+            }
+
+        } catch (ex) {
+            errMessage = ex.response?.data?.error || 'Error Modifying library';
+            console.log(errMessage);
+        }
+    }
+
+    async function addToLibrary(novelId) {
+        try {
+            const requestParam = `?nv_novel_id=${novelId}`;
+            console.log(API.library + requestParam);
+            const res = await axios.post(API.library, {
+                nv_novel_id: novelId,
+                nv_user_id: userID,
+            });
+            //Reload page to get changes
+            window.location.reload();
+        } catch (ex) {
+            errMessage = ex.response?.data?.error || 'Error Adding to library';
+            console.log(errMessage);
+        }
+    }
+
+
+
+    async function deleteFromLibrary(novelId) {
+        try {
+            //Get library id
+            const requestParam = `?nv_user_id=${userID}&nv_novel_id=${novelId}`;
+            const { data } = await axios.get(API.library + requestParam);
+            const libraryID = data.nv_user_library_id;
+
+            //Remove from library
+            const res = await axios.delete(`${API.library}?nv_user_library_id=${libraryID}`);
+            //Reload page to get changes
+            window.location.reload();
+        } catch (ex) {
+            errMessage = ex.response?.data?.error || 'Error Adding to library';
+            console.log(errMessage);
+        }
+    }
+
+
+    // Toggle popup functions
+    function togglePopup(containerID) {
+        const overlay = document.getElementById(containerID);
+        overlay.classList.toggle('show');
     }
 
     loadNovels()

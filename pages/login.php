@@ -8,7 +8,6 @@ require_once HTML_HEADER;
 </head>
 
 <body>
-    <?php require_once NAVBAR_COMPONENT; ?>
     <main>
         <div id="form-wrapper">
             <h1 id="welcomeTitle">Welcome</h1>

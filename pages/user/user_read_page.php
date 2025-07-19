@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../../paths.php';
+session_start();
 require_once HTML_HEADER;
 ?>
 <style>
@@ -13,10 +14,6 @@ require_once HTML_HEADER;
         margin-right: auto;
         width: 1000px;
         margin-top: 30px;
-    }
-
-    #navbar-title {
-        flex: 0.4;
     }
 
     #return {
@@ -225,9 +222,6 @@ require_once HTML_HEADER;
                 <li><a>Library</a></li>
                 <li> <a id="libraryBtn">+ Add to Library</a></li>
             </ul>
-            <div id="navbar-profile-pic">
-                <img src="https://picsum.photos/50" alt="Profile Picture">
-            </div>
         </nav>
     </header>
 
@@ -279,18 +273,6 @@ require_once HTML_HEADER;
 
         //Get novel ID from request param
         const novelId = params.get('nv_novel_id');
-
-        async function loadNovelContent() {
-            try {
-                //Get current URL
-                const params = new URLSearchParams(window.location.search);
-
-                //Get novel ID from request param
-                const novelId = params.get('nv_novel_id');
-            } catch (ex) {
-
-            }
-        }
 
         async function loadNovelDetail() {
             try {
@@ -483,9 +465,6 @@ require_once HTML_HEADER;
                         observer.unobserve(topAnchor);
                         continue;
                     } else if (document.getElementById(`chapter-${currChapter - 1}`)) {
-
-
-
 
                         console.log(currChapter);
                         currChapter = currChapter - 1;

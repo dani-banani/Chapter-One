@@ -5,16 +5,17 @@ header('Content-Type: application/json');
 
 $method = $_SERVER['REQUEST_METHOD'];
 $response = match ($method) {
-    'GET'    => getLibrary($conn, $_GET),
-    'POST'   => addToLibrary($conn, json_decode(file_get_contents('php://input'), true)),
-    'PUT'    => updateLibrary($conn, json_decode(file_get_contents('php://input'), true)),
+    'GET' => getLibrary($conn, $_GET),
+    'POST' => addToLibrary($conn, json_decode(file_get_contents('php://input'), true)),
+    'PUT' => updateLibrary($conn, json_decode(file_get_contents('php://input'), true)),
     'DELETE' => deleteFromLibrary($conn, $_GET),
-    default  => http_response_code(405) && ['error' => 'Unsupported method']
+    default => http_response_code(405) && ['error' => 'Unsupported method']
 };
 
 echo json_encode($response);
 
-function getLibrary($conn, $filters) {
+function getLibrary($conn, $filters)
+{
     $sql = "SELECT * FROM nv_user_library";
     $where = [];
     $values = [];
@@ -33,14 +34,17 @@ function getLibrary($conn, $filters) {
     }
 
     $stmt = $conn->prepare($sql);
-    if (!$stmt) return ['error' => $conn->error];
-    if ($values) $stmt->bind_param($types, ...$values);
+    if (!$stmt)
+        return ['error' => $conn->error];
+    if ($values)
+        $stmt->bind_param($types, ...$values);
     $stmt->execute();
 
     return $stmt->get_result()->fetch_all(MYSQLI_ASSOC) ?: ['error' => 'No entries found'];
 }
 
-function addToLibrary($conn, $data) {
+function addToLibrary($conn, $data)
+{
     $required = ['nv_novel_id'];
     foreach ($required as $field) {
         if (empty($data[$field])) {
@@ -49,23 +53,24 @@ function addToLibrary($conn, $data) {
         }
     }
 
-    $novelId  = intval($data['nv_novel_id']);
-    $chapter  = isset($data['nv_current_chapter']) ? intval($data['nv_current_chapter']) : null;
-    $userId   = $_SESSION['user_id'] ?? $data['nv_user_id'] ?? null;
+    $novelId = intval($data['nv_novel_id']);
+    $chapter = isset($data['nv_current_chapter']) ? intval($data['nv_current_chapter']) : null;
+    $userId = $_SESSION['user_id'] ?? $data['nv_user_id'] ?? null;
 
     if (!$userId) {
         http_response_code(401);
         return ['error' => 'User ID is required'];
     }
 
-    $stmt = $conn->prepare("INSERT INTO nv_user_library (nv_user_id, nv_novel_id, nv_current_chapter) VALUES (?, ?, ?)");
-    $stmt->bind_param("iii", $userId, $novelId, $chapter);
+    $stmt = $conn->prepare("INSERT INTO nv_user_library (nv_user_id, nv_novel_id) VALUES (?, ?)");
+    $stmt->bind_param("ii", $userId, $novelId);
     return $stmt->execute()
         ? ['success' => true, 'id' => $stmt->insert_id]
         : ['error' => $stmt->error];
 }
 
-function updateLibrary($conn, $data) {
+function updateLibrary($conn, $data)
+{
     if (empty($data['nv_user_library_id'])) {
         http_response_code(400);
         return ['error' => 'nv_user_library_id is required'];
@@ -81,7 +86,8 @@ function updateLibrary($conn, $data) {
         $types .= 'i';
     }
 
-    if (empty($fields)) return ['error' => 'No fields to update'];
+    if (empty($fields))
+        return ['error' => 'No fields to update'];
 
     $types .= 'i';
     $values[] = $data['nv_user_library_id'];
@@ -93,7 +99,8 @@ function updateLibrary($conn, $data) {
         : ['error' => $stmt->error];
 }
 
-function deleteFromLibrary($conn, $params) {
+function deleteFromLibrary($conn, $params)
+{
     if (empty($params['nv_user_library_id'])) {
         http_response_code(400);
         return ['error' => 'nv_user_library_id is required'];

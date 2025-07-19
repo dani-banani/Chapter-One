@@ -5,16 +5,17 @@ header('Content-Type: application/json');
 
 $method = $_SERVER['REQUEST_METHOD'];
 $response = match ($method) {
-    'GET'    => getReviews($conn, $_GET),
-    'POST'   => createReview($conn, json_decode(file_get_contents('php://input'), true)),
-    'PUT'    => updateReview($conn, json_decode(file_get_contents('php://input'), true)),
+    'GET' => getReviews($conn, $_GET),
+    'POST' => createReview($conn, json_decode(file_get_contents('php://input'), true)),
+    'PUT' => updateReview($conn, json_decode(file_get_contents('php://input'), true)),
     'DELETE' => deleteReview($conn, $_GET),
-    default  => http_response_code(405) && ['error' => 'Unsupported method']
+    default => http_response_code(405) && ['error' => 'Unsupported method']
 };
 
 echo json_encode($response);
 
-function getReviews($conn, $filters) {
+function getReviews($conn, $filters)
+{
     $sql = "SELECT * FROM nv_review";
     $where = [];
     $values = [];
@@ -32,13 +33,16 @@ function getReviews($conn, $filters) {
     }
     $sql .= " ORDER BY nv_review_created_at DESC";
     $stmt = $conn->prepare($sql);
-    if (!$stmt) return ['error' => $conn->error];
-    if ($values) $stmt->bind_param($types, ...$values);
+    if (!$stmt)
+        return ['error' => $conn->error];
+    if ($values)
+        $stmt->bind_param($types, ...$values);
     $stmt->execute();
     return $stmt->get_result()->fetch_all(MYSQLI_ASSOC) ?: ['error' => 'No results found'];
 }
 
-function createReview($conn, $data) {
+function createReview($conn, $data)
+{
     $required = ['nv_novel_id', 'nv_review_rating', 'nv_review_comment'];
     foreach ($required as $field) {
         if (empty($data[$field])) {
@@ -48,16 +52,15 @@ function createReview($conn, $data) {
     }
 
     $novelId = $data['nv_novel_id'];
-    $rating  = floatval($data['nv_review_rating']);
+    $rating = floatval($data['nv_review_rating']);
     $comment = trim($data['nv_review_comment']);
-    $likes   = intval($data['nv_review_likes'] ?? 0);
-    $userId  = $_SESSION['user_id'] ?? $data['nv_user_id'] ?? null;
+    $likes = intval($data['nv_review_likes'] ?? 0);
+    $userId = $_SESSION['user_id'] ?? $data['nv_user_id'] ?? null;
 
     if (!$userId) {
         http_response_code(401);
         return ['error' => 'User ID required'];
     }
-
     $stmt = $conn->prepare("INSERT INTO nv_review (nv_novel_id, nv_review_rating, nv_review_comment, nv_review_likes, nv_user_id, nv_review_editted_at) VALUES (?, ?, ?, ?, ?, NOW())");
     $stmt->bind_param("idsii", $novelId, $rating, $comment, $likes, $userId);
     return $stmt->execute()
@@ -65,7 +68,8 @@ function createReview($conn, $data) {
         : ['error' => $stmt->error];
 }
 
-function updateReview($conn, $data) {
+function updateReview($conn, $data)
+{
     if (empty($data['nv_review_id'])) {
         http_response_code(400);
         return ['error' => 'nv_review_id is required'];
@@ -82,7 +86,8 @@ function updateReview($conn, $data) {
         }
     }
 
-    if (empty($fields)) return ['error' => 'No fields to update'];
+    if (empty($fields))
+        return ['error' => 'No fields to update'];
 
     $fields[] = "nv_review_editted_at = NOW()";
     $types .= 'i';
@@ -95,7 +100,8 @@ function updateReview($conn, $data) {
         : ['error' => $stmt->error];
 }
 
-function deleteReview($conn, $params) {
+function deleteReview($conn, $params)
+{
     if (empty($params['nv_review_id'])) {
         http_response_code(400);
         return ['error' => 'nv_review_id is required'];
