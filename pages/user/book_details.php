@@ -167,10 +167,15 @@ require_once HTML_HEADER;
         font-weight: 500;
     }
 
-    .testing {
+    .review-wrapper {
         display: flex;
         flex-direction: row;
         gap: 50px;
+        margin-bottom: 70px;
+    }
+
+    .rating-review-section {
+        margin-top: 50px;
     }
 
     #reviewForm {
@@ -190,6 +195,7 @@ require_once HTML_HEADER;
         background-color: transparent;
         color: red;
     }
+
 
     .review-container {
         display: grid;
@@ -272,7 +278,7 @@ require_once HTML_HEADER;
             <hr>
             <!-- Rating and Review Section -->
             <div class="rating-review-section">
-                <div class="testing">
+                <div class="review-wrapper">
                     <h1>Ratings and Review Section</h1>
                     <!-- If the user is not logged in, display login prompt popup -->
                     <?php if ($userRole != 'user'): ?>
@@ -298,7 +304,7 @@ require_once HTML_HEADER;
                     <label for="review">Review</label><br>
                     <textarea class="review" name="review" maxlength="1500"></textarea><br><br>
 
-                    <div class="testing">
+                    <div class="review-wrapper">
                         <button class="BtnStyle" type="submit" value="" style="padding:10px 20px;">Submit
                             Review</button>
                         <button id='cancel_reviewBtn' class='emptyBtnStyle'
@@ -311,7 +317,7 @@ require_once HTML_HEADER;
                     <div class='review-container'>
                         <div class='userProfile'>
                             <img class='review_pfp' alt='default pfp' src='https://picsum.photos/50'>
-                            <p id='review_username'>Testing</p>
+                            <p id='review_username'>Loading...</p>
                         </div>
 
                         <div class='userComment'>
@@ -329,11 +335,8 @@ require_once HTML_HEADER;
                                 </div>
                                 <p style='display:inline;margin:0 0;'>2025-5-43</p>
                             </div>
-                            <p class='user-review'>
-                                EFOFOEWFW-ENF-WEFWNFNWEFNW-FWFN-WNF-ONFI-WNFFWJFNWPFWIPFNIPWFWIPFNWPNFNFWKPFN</p>
-                            <hr>
+                            <p class='user-review'>Loading...</p>
                         </div>
-
                     </div>
                 </div>
         </section>
@@ -441,21 +444,21 @@ require_once HTML_HEADER;
                 container.innerHTML = reviews.map(review => {
                     console.log(review);
                     const stars = Array.from({ length: 5 }, (_, i) => {
-                        const starType = i < nv_review_rating ? 'filled_star.png' : 'empty_star.png';
+                        const starType = i < review.nv_review_rating ? 'filled_star.png' : 'empty_star.png';
                         return `<img class="reviewRating" src="../img/${starType}" alt="${i + 1} star">`;
                     }).join('');
 
                     return `
                         <div class='review-container'>
                             <div class='userProfile'>
-                                <img class='review_pfp' alt='default pfp' src='img/user_default_pfp.jpg'>
+                                <img class='review_pfp' alt='default pfp' src='https://picsum.photos/50'>
                                 <p class='review_username'>Username</p>
                             </div>
 
                             <div class='userComment'>
                                 <div style='display:flex;justify-content:space-between'>
                                     <div>${stars}</div>
-                                    <p style='display:inline;margin:0 0;'>${new Date(review.created_at).toLocaleDateString()}</p>
+                                    <p style='display:inline;margin:0 0;'>${new Date(review.nv_review_created_at).toLocaleDateString()}</p>
                                 </div>
                                 <p class='user-review'>${review.nv_review_comment}</p>
                                 <hr>
@@ -521,7 +524,6 @@ require_once HTML_HEADER;
 
                 //Remove from library
                 const res = await axios.delete(`${API.library}?nv_user_library_id=${libraryID}`);
-                console.log(res);
                 //Reload page to get changes
                 // window.location.reload();
             } catch (ex) {
