@@ -7,7 +7,6 @@ $method = $_SERVER['REQUEST_METHOD'];
 $response = match ($method) {
     'GET'    => getLibrary($conn, $_GET),
     'POST'   => addToLibrary($conn, json_decode(file_get_contents('php://input'), true)),
-    'PUT'    => updateLibrary($conn, json_decode(file_get_contents('php://input'), true)),
     'DELETE' => deleteFromLibrary($conn, $_GET),
     default  => http_response_code(405) && ['error' => 'Unsupported method']
 };
@@ -15,18 +14,18 @@ $response = match ($method) {
 echo json_encode($response);
 function getLibrary($conn, $filters) {
     $sql = "SELECT * FROM nv_user_library";
-    $where = [];
+    $conditions = [];
     $values = [];
     $types = '';
-    foreach ($filters as $key => $value) {
-        if (in_array($key, ['nv_user_id', 'nv_novel_id'])) {
-            $where[] = "$key = ?";
-            $values[] = $value;
+    foreach (['nv_user_id', 'nv_novel_id'] as $key) {
+        if (!empty($filters[$key])) {
+            $conditions[] = "$key = ?";
+            $values[] = $filters[$key];
             $types .= 'i';
         }
     }
-    if ($where) {
-        $sql .= " WHERE " . implode(" AND ", $where);
+    if ($conditions) {
+        $sql .= " WHERE " . implode(" AND ", $conditions);
     }
     $stmt = $conn->prepare($sql);
     if (!$stmt) return ['error' => $conn->error];
@@ -36,62 +35,26 @@ function getLibrary($conn, $filters) {
 }
 
 function addToLibrary($conn, $data) {
-    if (empty($data['nv_novel_id'])) {
+    $userId = $_SESSION['user_id'] ?? $data['nv_user_id'] ?? null;
+    $novelId = $data['nv_novel_id'] ?? null;
+    if (!$userId || !$novelId) {
         http_response_code(400);
-        return ['error' => 'nv_novel_id is required'];
+        return ['error' => 'nv_user_id and nv_novel_id are required'];
     }
-    $novelId = intval($data['nv_novel_id']);
-    $userId  = $_SESSION['user_id'] ?? $data['nv_user_id'] ?? null;
-    if (!$userId) {
-        http_response_code(401);
-        return ['error' => 'User ID is required'];
-    }
-    $checkStmt = $conn->prepare("SELECT 1 FROM nv_user_library WHERE nv_user_id = ? AND nv_novel_id = ?");
-    $checkStmt->bind_param("ii", $userId, $novelId);
-    $checkStmt->execute();
-    if ($checkStmt->get_result()->num_rows > 0) {
-        return ['error' => 'Entry already exists'];
-    }
-    $stmt = $conn->prepare("INSERT INTO nv_user_library (nv_user_id, nv_novel_id) VALUES (?, ?)");
+    $stmt = $conn->prepare("INSERT IGNORE INTO nv_user_library (nv_user_id, nv_novel_id) VALUES (?, ?)");
     $stmt->bind_param("ii", $userId, $novelId);
     return $stmt->execute()
         ? ['success' => true]
         : ['error' => $stmt->error];
 }
 
-function updateLibrary($conn, $data) {
-    if (empty($data['nv_user_library_id'])) {
-        http_response_code(400);
-        return ['error' => 'nv_user_library_id is required'];
-    }
-    $fields = [];
-    $types = '';
-    $values = [];
-    if (isset($data['nv_current_chapter'])) {
-        $fields[] = "nv_current_chapter = ?";
-        $values[] = intval($data['nv_current_chapter']);
-        $types .= 'i';
-    }
-    if (empty($fields)) {
-        return ['error' => 'No fields to update'];
-    }
-    $types .= 'i';
-    $values[] = intval($data['nv_user_library_id']);
-    $stmt = $conn->prepare("UPDATE nv_user_library SET " . implode(', ', $fields) . " WHERE nv_user_library_id = ?");
-    $stmt->bind_param($types, ...$values);
-    return $stmt->execute()
-        ? ['success' => true]
-        : ['error' => $stmt->error];
-}
-
 function deleteFromLibrary($conn, $params) {
-    if (empty($params['nv_user_library_id'])) {
+    if (empty($params['nv_user_id']) || empty($params['nv_novel_id'])) {
         http_response_code(400);
-        return ['error' => 'nv_user_library_id is required'];
+        return ['error' => 'nv_user_id and nv_novel_id are required'];
     }
-    $id = intval($params['nv_user_library_id']);
-    $stmt = $conn->prepare("DELETE FROM nv_user_library WHERE nv_user_library_id = ?");
-    $stmt->bind_param("i", $id);
+    $stmt = $conn->prepare("DELETE FROM nv_user_library WHERE nv_user_id = ? AND nv_novel_id = ?");
+    $stmt->bind_param("ii", $params['nv_user_id'], $params['nv_novel_id']);
     return $stmt->execute()
         ? ['success' => true]
         : ['error' => $stmt->error];
