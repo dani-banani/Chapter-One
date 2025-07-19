@@ -105,6 +105,7 @@ require_once HTML_HEADER;
         async function loadLibrary() {
             //Declare container 
             const box = document.getElementById('libraryContainer');
+            const libraryContainer = document.getElementById('libraryContainer');
 
             //Change webpage title
             document.title = "Library";
@@ -119,18 +120,29 @@ require_once HTML_HEADER;
             try {
                 const { data } = await axios.get(`${API.library}?nv_user_id=${userID}`);
 
-                box.innerHTML = (await Promise.all(data.map(async (libraryNovel) => {
-                    // Fetch book cover and title 
-                    const novels = await axios.get(`${API.novel}?nv_novel_id=${libraryNovel.nv_novel_id}`);
-                    const novel = novels.data;
+                if (!Array.isArray(data) || data.length === 0) {
+                    libraryContainer.style.justifyContent = 'center';
+                    box.innerHTML = `
+                                    <div style='display:flex;flex-direction:column;justify-content:center;'>
+                                        <img src='../img/crying-book.png' alt='crying book emoji' height='200px' width='200px' style='margin:50px auto;'>
+                                        <h2 style='margin:auto;padding:0px;width:fit-content;text-align:center'>No book in library, let's start adding them!</h2>
+                                    </div>`;
+                    return;
+                } else {
 
-                    // Limit title length
-                    let limitedTitle = novel[0].nv_novel_title;
-                    console.log(novel.nv_novel_title);
-                    if (limitedTitle.length > 30) {
-                        limitedTitle = limitedTitle.substring(0, 30) + '...';
-                    }
-                    return `
+                    box.innerHTML = (await Promise.all(data.map(async (libraryNovel) => {
+                        // Fetch book cover and title 
+                        const novels = await axios.get(`${API.novel}?nv_novel_id=${libraryNovel.nv_novel_id}`);
+                        const novel = novels.data;
+
+
+                        // Limit title length
+                        let limitedTitle = novel[0].nv_novel_title;
+                        console.log(novel.nv_novel_title);
+                        if (limitedTitle.length > 30) {
+                            limitedTitle = limitedTitle.substring(0, 30) + '...';
+                        }
+                        return `
                         <div class='novel-container'>
                             <div class='novel-img'>
                                 <img src='../img/question.png' />
@@ -146,7 +158,8 @@ require_once HTML_HEADER;
                     </div>
                         `;
 
-                }))).join('');
+                    }))).join('');
+                }
             } catch (ex) {
                 console.log(ex);
                 box.innerHTML = ex.response?.data?.error || '<p>Error loading library<p>';

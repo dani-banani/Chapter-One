@@ -442,7 +442,6 @@ require_once HTML_HEADER;
                 }
 
                 container.innerHTML = reviews.map(review => {
-                    console.log(review);
                     const stars = Array.from({ length: 5 }, (_, i) => {
                         const starType = i < review.nv_review_rating ? 'filled_star.png' : 'empty_star.png';
                         return `<img class="reviewRating" src="../img/${starType}" alt="${i + 1} star">`;
@@ -517,15 +516,13 @@ require_once HTML_HEADER;
 
         async function deleteFromLibrary() {
             try {
-                //Get library id
+                //Remove from library
                 const requestParam = `?nv_user_id=${userID}&nv_novel_id=${novelId}`;
-                const { data } = await axios.get(API.library + requestParam);
+                const { data } = await axios.delete(API.library + requestParam);
                 const libraryID = data.nv_user_library_id;
 
-                //Remove from library
-                const res = await axios.delete(`${API.library}?nv_user_library_id=${libraryID}`);
                 //Reload page to get changes
-                // window.location.reload();
+                window.location.reload();
             } catch (ex) {
                 errMessage = ex.response?.data?.error || 'Error Adding to library';
                 console.log(errMessage);
