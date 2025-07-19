@@ -470,8 +470,6 @@ require_once HTML_HEADER;
             }
         }
 
-        loadReviews(novelId);
-
         //Check if the user has the book in library
         async function modifyLibraryButton() {
             //If user is not logged in, ignore
@@ -612,6 +610,7 @@ require_once HTML_HEADER;
         async function getNovelChapters() {
 
 
+
             //Get container for chapter
             const box = document.getElementById('chapterArea');
             const chapterCount = document.getElementById('chapter-count');
@@ -640,6 +639,7 @@ require_once HTML_HEADER;
                                 </div>`
             }
         }
+        loadReviews(novelId);
         modifyLibraryButton();
         loadNovelDetail();
         getNovelChapters();
