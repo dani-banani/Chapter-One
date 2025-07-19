@@ -16,7 +16,7 @@ define('AUTHOR_API', '/chapter-one/api/author.php');
 define('NOVEL_CHAPTER_API', '/chapter-one/api/novel_chapter.php');
 define('RATING_API', '/chapter-one/api/rating.php');
 define('LIBRARY_API', '/chapter-one/api/library.php');
-define('REVIEW_API', '/chapter-one/api/library.php');
+define('REVIEW_API', '/chapter-one/api/review.php');
 
 // UI Components
 define('NAVBAR_COMPONENT', ROOT_PATH . '/components/navbar.php');
