@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../../paths.php';
+session_start();
 require_once HTML_HEADER;
 ?>
 <style>
@@ -15,6 +16,8 @@ require_once HTML_HEADER;
         flex-direction: row;
         justify-content: center;
         gap: 30px;
+        min-height: 100vh;
+        margin-bottom: 60px;
     }
 
     aside {
@@ -203,7 +206,7 @@ require_once HTML_HEADER;
         </main>
     </div>
 
-
+    <?php require_once FOOTER_COMPONENT; ?>
     <script>
         //API Paths
 

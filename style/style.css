@@ -71,3 +71,47 @@ h6 {
         box-shadow: 1px 1px 5px 1px rgba(0, 0, 0, 0.3);
     }
 }
+
+.overlay-container {
+    grid-column: 1/-1;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    bottom: 0;
+    z-index: 999999;
+    display: none;
+    background-color: rgba(6, 6, 6, 0.59);
+    align-items: center;
+    justify-content: center;
+}
+
+.overlay-container.show {
+    display: flex;
+    flex-direction: column;
+}
+
+.popup_wrapper {
+    text-align: center;
+    background-color: white;
+    width: 400px;
+    height: 350px;
+    border-radius: 12px;
+    position: relative;
+
+    h3 {
+        margin-top: 20px;
+    }
+}
+
+.popup_title {
+    margin-top: 60px;
+}
+
+.popup_closeBtn {
+    background-color: transparent;
+    border: 0px;
+    position: absolute;
+    right: 30px;
+    top: 30px;
+    cursor: pointer;
+}

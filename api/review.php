@@ -51,11 +51,7 @@ function createReview($conn, $data)
     }
 
     $novelId = $data['nv_novel_id'];
-    $rating = floatval($data['nv_review_rating']);
-    if ($rating < 0 || $rating > 5) {
-        http_response_code(400);
-        return ['error' => 'nv_review_rating must be between 0 and 5'];
-    }
+    $rating  = floatval($data['nv_review_rating']);
     $comment = trim($data['nv_review_comment']);
     $likes = intval($data['nv_review_likes'] ?? 0);
     $userId = $_SESSION['user_id'] ?? $data['nv_user_id'] ?? null;
@@ -64,7 +60,6 @@ function createReview($conn, $data)
         http_response_code(401);
         return ['error' => 'User ID required'];
     }
-
     $stmt = $conn->prepare("INSERT INTO nv_review (nv_novel_id, nv_review_rating, nv_review_comment, nv_review_likes, nv_user_id, nv_review_editted_at) VALUES (?, ?, ?, ?, ?, NOW())");
     $stmt->bind_param("idsii", $novelId, $rating, $comment, $likes, $userId);
     return $stmt->execute()

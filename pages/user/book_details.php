@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../../paths.php';
+session_start();
 require_once HTML_HEADER;
 ?>
 <title>Chapter One</title>
@@ -51,7 +52,8 @@ require_once HTML_HEADER;
             }
 
             #readBtn,
-            #libraryBtn {
+            #libraryBtn,
+            #fakeLibraryBtn {
                 padding: 10px 30px;
                 border-radius: 8px;
                 border: 0px;
@@ -65,7 +67,8 @@ require_once HTML_HEADER;
                 margin-right: 20px;
             }
 
-            #libraryBtn {
+            #libraryBtn,
+            #fakeLibraryBtn {
                 background-color: white;
             }
 
@@ -163,6 +166,64 @@ require_once HTML_HEADER;
         font-size: 18px;
         font-weight: 500;
     }
+
+    .testing {
+        display: flex;
+        flex-direction: row;
+        gap: 50px;
+    }
+
+    #reviewForm {
+        display: none;
+    }
+
+    .review {
+        max-width: 300px;
+        max-height: 300px;
+    }
+
+    .emptyBtnStyle {
+        background-color: transparent;
+    }
+
+    .emptyBtnStyle:hover {
+        background-color: transparent;
+        color: red;
+    }
+
+    .review-container {
+        display: grid;
+        grid-template-columns: 100px auto;
+        grid-template-rows: auto;
+        margin-bottom: 50px;
+    }
+
+    .reviewRating {
+        display: inline;
+        width: 10px;
+        height: 10px;
+        margin-right: 5px;
+    }
+
+
+    .userProfile {
+        display: flex;
+        flex-direction: column;
+        justify-self: center;
+        text-align: center;
+    }
+
+    .review_pfp {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+    }
+
+    .user-review {
+        max-width: 700px;
+        text-align: justify;
+        line-height: 1.4;
+    }
 </style>
 </head>
 
@@ -184,9 +245,15 @@ require_once HTML_HEADER;
                     <a id="readBtn" href="">
                         Read Now
                     </a>
-                    <a id="libraryBtn">
-                        + Add to Library
-                    </a>
+                    <?php if ($userRole != 'user'): ?>
+                        <a id="fakeLibraryBtn" onclick="togglePopup('popup-container')">
+                            + Add to Library
+                        </a>
+                    <?php else: ?>
+                        <a id="libraryBtn">
+                            + Add to Library
+                        </a>
+                    <?php endif ?>
                 </div>
             </div>
         </div>
@@ -202,6 +269,73 @@ require_once HTML_HEADER;
         <section id="aboutSection">
             <p id="sypnosis">Sypnosis</p>
             <div id="novel-sypnosis">Loading...</div>
+            <hr>
+            <!-- Rating and Review Section -->
+            <div class="rating-review-section">
+                <div class="testing">
+                    <h1>Ratings and Review Section</h1>
+                    <!-- If the user is not logged in, display login prompt popup -->
+                    <?php if ($userRole != 'user'): ?>
+                        <button class='BtnStyle' id='reviewBtn' onclick="togglePopup('popup-container')">Add a
+                            Review</button>
+                        <!-- Else if the user does not have a review yet, prompt the user to share a review -->
+                    <?php else: ?>
+                        <button class='BtnStyle' id='reviewBtn' onclick="toggleReviewBtn('reviewForm','reviewBtn')">Add a
+                            Review</button>
+                    <?php endif ?>
+                </div>
+
+
+                <!-- Review form -->
+                <form id="reviewForm" method="POST" style="margin:20px auto">
+                    <label for="rating">Rating:</label>
+                    <label><input type="radio" name="rating" value="1">1 star</label>
+                    <label><input type="radio" name="rating" value="2">2 star</label>
+                    <label><input type="radio" name="rating" value="3">3 star</label>
+                    <label><input type="radio" name="rating" value="4">4 star</label>
+                    <label><input type="radio" name="rating" value="5">5 star</label><br><br>
+
+                    <label for="review">Review</label><br>
+                    <textarea class="review" name="review" maxlength="1500"></textarea><br><br>
+
+                    <div class="testing">
+                        <button class="BtnStyle" type="submit" value="" style="padding:10px 20px;">Submit
+                            Review</button>
+                        <button id='cancel_reviewBtn' class='emptyBtnStyle'
+                            onclick="toggleReviewBtn('reviewBtn','reviewForm')">Cancel</button>
+                    </div>
+                    <hr>
+                </form>
+
+                <div id="reviewList">
+                    <div class='review-container'>
+                        <div class='userProfile'>
+                            <img class='review_pfp' alt='default pfp' src='https://picsum.photos/50'>
+                            <p id='review_username'>Testing</p>
+                        </div>
+
+                        <div class='userComment'>
+                            <div style='display:flex;justify-content:space-between'>
+                                <!-- Fetch rating star -->
+                                <div>
+                                    <?php for ($i = 0; $i < 5; $i++) {
+                                        if ($i < 5) {
+                                            echo "<img class='reviewRating' src= '../img/filled_star.png'>";
+                                        } else {
+                                            echo "<img class='reviewRating' src= '../img/empty_star.png'>";
+                                        }
+                                    }
+                                    ?>
+                                </div>
+                                <p style='display:inline;margin:0 0;'>2025-5-43</p>
+                            </div>
+                            <p class='user-review'>
+                                EFOFOEWFW-ENF-WEFWNFNWEFNW-FWFN-WNF-ONFI-WNFFWJFNWPFWIPFNIPWFWIPFNWPNFNFWKPFN</p>
+                            <hr>
+                        </div>
+
+                    </div>
+                </div>
         </section>
 
         <section id="chapterSection">
@@ -211,10 +345,205 @@ require_once HTML_HEADER;
         </section>
     </main>
 
+    <!-- Login prompt container -->
+    <div id="popup-container" class="overlay-container">
+        <div class="popup_wrapper">
+            <h1 class="popup_title">Before we proceed..</h1>
+            <button class="popup_closeBtn" onclick="togglePopup('popup-container')"><img src="../img/close_Icon.png"
+                    width="20px" height="20px"></button>
+            <h3 style="margin-bottom:70px;">Please Login to Continue</h3>
+            <a style="padding:10px 70px;background-color:black;border-radius:12px;color:white;text-decoration:none;"
+                href="<?php echo LOGIN_PAGE ?>">Login Now!</a>
+            <p style="font-size:14px;">Are you new here? <a style="font-size:14px;color:blue;"
+                    href="<?php echo REGISTER_PAGE ?>">Register now!</a></p>
+        </div>
+    </div>
 
     <?php require_once FOOTER_COMPONENT; ?>
 
     <script>
+        //API Paths
+        const API = {
+            novel: '<?php echo NOVEL_API ?>',
+            genre: '<?php echo GENRE_API ?>',
+            author: '<?php echo AUTHOR_API ?>',
+            rating: '<?php echo RATING_API ?>',
+            review: '<?php echo REVIEW_API; ?>',
+            library: '<?php echo LIBRARY_API ?>',
+            novel_chapter: '<?php echo NOVEL_CHAPTER_API ?>',
+        };
+
+        let genreList = [];
+
+        //Get current URL
+        const params = new URLSearchParams(window.location.search);
+
+        //Get novel ID from request param
+        const novelId = params.get('nv_novel_id');
+        //Add link to "Read" button
+        const readBtn = document.getElementById('readBtn');
+        readBtn.href = "user_read_page.php?nv_novel_id=" + novelId;
+
+        //Get userID
+        const userID = <?php echo json_encode(($userRole == 'user') ? $_SESSION['user_id'] : null); ?>;
+
+        //Function to handle add review request
+        document.getElementById('reviewForm').onsubmit = async (e) => {
+            e.preventDefault();
+
+            // Get rating
+            const ratingInput = document.querySelector('input[name="rating"]:checked');
+            const rating = parseInt(ratingInput.value);
+            const reviewText = document.querySelector('textarea[name="review"]').value.trim();
+
+            if (!ratingInput) {
+                alert('Please select a rating.');
+                return;
+            }
+
+
+
+            try {
+                const res = await axios.post(API.review, {
+                    nv_novel_id: novelId,
+                    nv_review_rating: rating,
+                    nv_review_comment: reviewText,
+                });
+
+                if (res.data.success) {
+                    alert('Review submitted successfully!');
+                    e.target.reset();
+                } else {
+                    const err = res.data.error || 'Failed to submit review.';
+                    console.log(err);
+                }
+
+            } catch (err) {
+                const errorMsg = err.response?.data?.error || 'Submission failed';
+                console.log(errorMsg);
+            }
+        };
+
+        async function loadReviews(novelId) {
+            const container = document.getElementById('reviewList');
+            container.innerHTML = '<p>Loading reviews...</p>';
+
+            try {
+                const res = await axios.get(`${API.review}?nv_novel_id=${novelId}`);
+                const reviews = res.data;
+
+
+                if (!reviews.length) {
+                    container.innerHTML = '<p>No reviews yet.</p>';
+                    return;
+                }
+
+                container.innerHTML = reviews.map(review => {
+                    console.log(review);
+                    const stars = Array.from({ length: 5 }, (_, i) => {
+                        const starType = i < nv_review_rating ? 'filled_star.png' : 'empty_star.png';
+                        return `<img class="reviewRating" src="../img/${starType}" alt="${i + 1} star">`;
+                    }).join('');
+
+                    return `
+                        <div class='review-container'>
+                            <div class='userProfile'>
+                                <img class='review_pfp' alt='default pfp' src='img/user_default_pfp.jpg'>
+                                <p class='review_username'>Username</p>
+                            </div>
+
+                            <div class='userComment'>
+                                <div style='display:flex;justify-content:space-between'>
+                                    <div>${stars}</div>
+                                    <p style='display:inline;margin:0 0;'>${new Date(review.created_at).toLocaleDateString()}</p>
+                                </div>
+                                <p class='user-review'>${review.nv_review_comment}</p>
+                                <hr>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (err) {
+                container.innerHTML = '<p>Error loading reviews.</p>';
+                console.error(err);
+            }
+        }
+
+        //Check if the user has the book in library
+        async function modifyLibraryButton() {
+            //If user is not logged in, ignore
+            if (!userID) {
+                return;
+            }
+
+            try {
+                const libraryBtn = document.getElementById('libraryBtn');
+                const requestParam = `?nv_user_id=${userID}&nv_novel_id=${novelId}`;
+                const res = await axios.get(API.library + requestParam);
+                if (!res.data.length) {
+                    libraryBtn.onclick = () => addToLibrary();
+                } else {
+                    libraryBtn.innerHTML = "Remove from Library";
+                    libraryBtn.onclick = () => deleteFromLibrary();
+                }
+
+            } catch (ex) {
+                errMessage = ex.response?.data?.error || 'Error Modifying library';
+                console.log(errMessage);
+            }
+        }
+
+        async function addToLibrary() {
+            try {
+                const requestParam = `?nv_novel_id=${novelId}`;
+                const res = await axios.post(API.library, {
+                    nv_novel_id: novelId,
+                    nv_user_id: userID,
+                });
+
+                //Reload page to get changes
+                window.location.reload();
+            } catch (ex) {
+                errMessage = ex.response?.data?.error || 'Error Adding to library';
+                console.log(errMessage);
+            }
+        }
+
+
+
+        async function deleteFromLibrary() {
+            try {
+                //Get library id
+                const requestParam = `?nv_user_id=${userID}&nv_novel_id=${novelId}`;
+                const { data } = await axios.get(API.library + requestParam);
+                const libraryID = data.nv_user_library_id;
+
+                //Remove from library
+                const res = await axios.delete(`${API.library}?nv_user_library_id=${libraryID}`);
+                console.log(res);
+                //Reload page to get changes
+                // window.location.reload();
+            } catch (ex) {
+                errMessage = ex.response?.data?.error || 'Error Adding to library';
+                console.log(errMessage);
+            }
+        }
+
+
+        // Toggle popup functions
+        function togglePopup(containerID) {
+            const overlay = document.getElementById(containerID);
+            overlay.classList.toggle('show');
+        }
+
+
+        function toggleReviewBtn(showID, hideID) {
+            document.getElementById(hideID).style.display = 'none';
+            document.getElementById(showID).style.display = 'block';
+        }
+
+
         function sectionSelection(section) {
             //Get button element for styling
             const aboutBtn = document.getElementById('aboutBtn');
@@ -238,27 +567,6 @@ require_once HTML_HEADER;
             }
         }
 
-
-        //API Paths
-        const API = {
-            novel: '<?php echo NOVEL_API ?>',
-            genre: '<?php echo GENRE_API ?>',
-            author: '<?php echo AUTHOR_API ?>',
-            rating: '<?php echo RATING_API ?>',
-            novel_chapter: '<?php echo NOVEL_CHAPTER_API ?>',
-        };
-
-        let genreList = [];
-
-        //Get current URL
-        const params = new URLSearchParams(window.location.search);
-
-        //Get novel ID from request param
-        const novelId = params.get('nv_novel_id');
-        //Add link to "Read" anchor
-        const readBtn = document.getElementById('readBtn');
-        readBtn.href = "user_read_page.php?nv_novel_id=" + novelId;
-
         async function loadGenreMap() {
             const res = await axios.get(API.genre + '?list=1');
             return Object.fromEntries(res.data.map(g => [g.nv_genre_id, g.nv_genre_name]));
@@ -281,7 +589,6 @@ require_once HTML_HEADER;
                 //Fetch novel information
                 const { data } = await axios.get(`${API.novel}?nv_novel_id=${novelId}`);
                 const novel = data[0];
-                console.log(novel);
                 //Fetch author information
                 const res = await axios.get(`${API.author}?id=${novel.nv_author_id}`);
                 const author = res.data
@@ -303,6 +610,7 @@ require_once HTML_HEADER;
         async function getNovelChapters() {
 
 
+
             //Get container for chapter
             const box = document.getElementById('chapterArea');
             const chapterCount = document.getElementById('chapter-count');
@@ -311,8 +619,7 @@ require_once HTML_HEADER;
             //Get all chapters of a novel using novel id
             const filter = 'nv_novel_id=' + novelId;
             const { data } = await axios.get(`${API.novel_chapter}?${filter}&nv_novel_chapter_status=published`);
-            console.log(`HELLLO${API.novel_chapter}?${filter}`);
-            console.log(data);
+
             //Set chapter count
             chapterCount.innerHTML = data.length + " Published Chapters";
 
@@ -332,7 +639,8 @@ require_once HTML_HEADER;
                                 </div>`
             }
         }
-
+        loadReviews(novelId);
+        modifyLibraryButton();
         loadNovelDetail();
         getNovelChapters();
     </script>

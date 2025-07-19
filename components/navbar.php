@@ -24,6 +24,7 @@ if (isset($_SESSION['user_id'])) {
                 <p id='footer-title'>Chapter One</p>
             </div>
         <?php endif ?>
+
     </div>
     <?php if ($userRole != 'author'): ?>
         <form action="search.php" method="POST" id="navbar-search-bar">
@@ -63,7 +64,7 @@ if (isset($_SESSION['user_id'])) {
                                 </div>
                             </div>
                         </li>';
-                    echo '<li><a href="">My Library</a></li>';
+                    echo '<li><a href="' . USER_LIBRARY_PAGE . ' ">My Library</a></li>';
                     break;
                 default:
                     echo '<li> 

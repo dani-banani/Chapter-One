@@ -5,16 +5,17 @@ header('Content-Type: application/json');
 
 $method = $_SERVER['REQUEST_METHOD'];
 $response = match ($method) {
-    'GET'    => getLibrary($conn, $_GET),
-    'POST'   => addToLibrary($conn, json_decode(file_get_contents('php://input'), true)),
-    'PUT'    => updateLibrary($conn, json_decode(file_get_contents('php://input'), true)),
+    'GET' => getLibrary($conn, $_GET),
+    'POST' => addToLibrary($conn, json_decode(file_get_contents('php://input'), true)),
+    'PUT' => updateLibrary($conn, json_decode(file_get_contents('php://input'), true)),
     'DELETE' => deleteFromLibrary($conn, $_GET),
-    default  => http_response_code(405) && ['error' => 'Unsupported method']
+    default => http_response_code(405) && ['error' => 'Unsupported method']
 };
 
 echo json_encode($response);
 
-function getLibrary($conn, $filters) {
+function getLibrary($conn, $filters)
+{
     $sql = "SELECT * FROM nv_user_library";
     $where = [];
     $values = [];
@@ -30,13 +31,16 @@ function getLibrary($conn, $filters) {
         $sql .= " WHERE " . implode(" AND ", $where);
     }
     $stmt = $conn->prepare($sql);
-    if (!$stmt) return ['error' => $conn->error];
-    if ($values) $stmt->bind_param($types, ...$values);
+    if (!$stmt)
+        return ['error' => $conn->error];
+    if ($values)
+        $stmt->bind_param($types, ...$values);
     $stmt->execute();
     return $stmt->get_result()->fetch_all(MYSQLI_ASSOC) ?: ['error' => 'No entries found'];
 }
 
-function addToLibrary($conn, $data) {
+function addToLibrary($conn, $data)
+{
     $required = ['nv_novel_id'];
     foreach ($required as $field) {
         if (empty($data[$field])) {
@@ -44,9 +48,11 @@ function addToLibrary($conn, $data) {
             return ['error' => "$field is required"];
         }
     }
-    $novelId = intval($data['nv_novel_id']);
-    $chapter = isset($data['nv_current_chapter']) ? intval($data['nv_current_chapter']) : null;
-    $userId  = $_SESSION['user_id'] ?? $data['nv_user_id'] ?? null;
+
+    $novelId  = intval($data['nv_novel_id']);
+    $chapter  = isset($data['nv_current_chapter']) ? intval($data['nv_current_chapter']) : null;
+    $userId   = $_SESSION['user_id'] ?? $data['nv_user_id'] ?? null;
+
     if (!$userId) {
         http_response_code(401);
         return ['error' => 'User ID is required'];
@@ -58,15 +64,15 @@ function addToLibrary($conn, $data) {
         return ['error' => 'Entry already exists'];
     }
 
-    $stmt = $conn->prepare("INSERT INTO nv_user_library (nv_user_id, nv_novel_id, nv_current_chapter) VALUES (?, ?, ?)");
-    $stmt->bind_param("iii", $userId, $novelId, $chapter);
+    $stmt = $conn->prepare("INSERT INTO nv_user_library (nv_user_id, nv_novel_id) VALUES (?, ?)");
+    $stmt->bind_param("ii", $userId, $novelId);
     return $stmt->execute()
         ? ['success' => true]
         : ['error' => $stmt->error];
 }
 
 function updateLibrary($conn, $data) {
-    if (empty($data['nv_user_id']) || empty($data['nv_novel_id'])) {
+    if (empty($data['nv_user_library_id'])) {
         http_response_code(400);
         return ['error' => 'nv_user_id and nv_novel_id are required'];
     }
@@ -78,11 +84,13 @@ function updateLibrary($conn, $data) {
         $values[] = $data['nv_current_chapter'];
         $types .= 'i';
     }
+
     if (empty($fields)) return ['error' => 'No fields to update'];
-    $types .= 'ii';
-    $values[] = $data['nv_user_id'];
-    $values[] = $data['nv_novel_id'];
-    $stmt = $conn->prepare("UPDATE nv_user_library SET " . implode(', ', $fields) . " WHERE nv_user_id = ? AND nv_novel_id = ?");
+
+    $types .= 'i';
+    $values[] = $data['nv_user_library_id'];
+
+    $stmt = $conn->prepare("UPDATE nv_user_library SET " . implode(', ', $fields) . " WHERE nv_user_library_id = ?");
     $stmt->bind_param($types, ...$values);
     return $stmt->execute()
         ? ['success' => true]
@@ -90,7 +98,7 @@ function updateLibrary($conn, $data) {
 }
 
 function deleteFromLibrary($conn, $params) {
-    if (empty($params['nv_user_id']) || empty($params['nv_novel_id'])) {
+    if (empty($params['nv_user_library_id'])) {
         http_response_code(400);
         return ['error' => 'nv_user_id and nv_novel_id are required'];
     }

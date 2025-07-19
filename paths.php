@@ -15,6 +15,8 @@ define('USER_API', '/chapter-one/api/user.php');
 define('AUTHOR_API', '/chapter-one/api/author.php');
 define('NOVEL_CHAPTER_API', '/chapter-one/api/novel_chapter.php');
 define('RATING_API', '/chapter-one/api/rating.php');
+define('LIBRARY_API', '/chapter-one/api/library.php');
+define('REVIEW_API', '/chapter-one/api/library.php');
 
 // UI Components
 define('NAVBAR_COMPONENT', ROOT_PATH . '/components/navbar.php');
@@ -32,4 +34,5 @@ define('USER_DASHBOARD_PAGE', '/chapter-one/pages/user/dashboard.php');
 define('USER_READ_PAGE', '/chapter-one/pages/user/user_read_page.php');
 define('USER_SEARCH_PAGE', '/chapter-one/pages/user/search.php');
 define('USER_BROWSE_PAGE', '/chapter-one/pages/user/browse_book.php');
+define('USER_LIBRARY_PAGE', '/chapter-one/pages/user/user_library.php');
 ?>
