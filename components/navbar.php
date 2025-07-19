@@ -1,5 +1,7 @@
 <?php
 $userRole = "";
+require_once __DIR__ . '/../paths.php';
+
 
 if (isset($_SESSION['user_id'])) {
     $userRole = 'user';

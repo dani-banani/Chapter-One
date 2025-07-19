@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../paths.php';
+
 session_start();
 session_unset();
 session_destroy();
