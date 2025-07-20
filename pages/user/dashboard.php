@@ -42,7 +42,7 @@ require_once HTML_HEADER;
 
     .slide {
         min-width: 100%;
-        background: linear-gradient(135deg, rgb(255, 161, 161) 0%, rgb(249, 181, 122) 100%);
+        background: linear-gradient(135deg, rgba(255, 229, 176, 1) 0%, var(--primary-button) 70%);
         padding: 60px 40px;
         display: flex;
         align-items: center;

@@ -16,7 +16,7 @@ require_once HTML_HEADER;
         flex-direction: row;
         justify-content: center;
         gap: 30px;
-        min-height: 100vh;
+        min-height: 75vh;
         margin-bottom: 60px;
     }
 
@@ -29,42 +29,9 @@ require_once HTML_HEADER;
         flex-direction: row;
         justify-content: center;
         align-items: center;
-        background-color: #007bff;
+        background-color: var(--primary-button);
         border-radius: 6px;
         width: 210px;
-    }
-
-    .lead_option {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        padding: 2px 8px;
-        margin: 5px;
-        border-radius: 6px;
-        cursor: pointer;
-        color: white;
-    }
-
-    .male {
-        border-top-right-radius: 0px;
-        border-bottom-right-radius: 0px;
-    }
-
-    .female {
-        border-top-left-radius: 0px;
-        border-bottom-left-radius: 0px;
-    }
-
-    .lead_option input[type="radio"] {
-        display: none;
-    }
-
-    .lead_option:has(input:checked) {
-        background-color: #ffffff;
-        border-color: #007bff;
-        color: black;
-        font-weight: bold;
-        transition: background-color 0.2s, border-color 0.2s;
     }
 
     section {
@@ -156,14 +123,10 @@ require_once HTML_HEADER;
         align-content: center;
     }
 
-    .genre-button:hover {
-        background-color: blue;
-        color: white;
-    }
-
+    .genre-button:hover,
     .isSelected {
-        background: blue;
-        color: white;
+        background-color: var(--primary-button);
+        color: black;
     }
 
     #genreTitle {
@@ -324,7 +287,7 @@ require_once HTML_HEADER;
 
                     //call novel API to fetch books based on the genre_id with the status of published
                     novels = await axios.get(API.novel + requestParam);
-
+                    console.log(novels.data);
                     //Set genre introduction
                     setGenreIntro(genreMap[genreId]);
                     //Change webpage title
@@ -359,7 +322,7 @@ require_once HTML_HEADER;
                                         <h3 class='novel-title'><a href='book_details.php?nv_novel_id=${novel.nv_novel_id}'>${novel.nv_novel_title}</a></h3>
                                         <div class='novel-description'>${modifiedDesc}</div>
                                         <div class='novel-stats'>
-                                            <p class='novel-view-count'><i class='fa-solid fa-eye'></i>&nbsp; ${novel.nv_novel_view_count}</p>
+                                            <p class='novel-view-count'><i class='fa-solid fa-eye'></i>&nbsp; 0</p>
                                             <p class='novel-view-count'><i class='fa-solid fa-star'></i>&nbsp; ${avgRating}</p>
                                         </div>
                                     </div>

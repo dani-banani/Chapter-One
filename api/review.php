@@ -51,17 +51,16 @@ function createReview($conn, $data)
     }
 
     $novelId = $data['nv_novel_id'];
-    $rating  = floatval($data['nv_review_rating']);
+    $rating = floatval($data['nv_review_rating']);
     $comment = trim($data['nv_review_comment']);
-    $likes = intval($data['nv_review_likes'] ?? 0);
     $userId = $_SESSION['user_id'] ?? $data['nv_user_id'] ?? null;
 
     if (!$userId) {
         http_response_code(401);
         return ['error' => 'User ID required'];
     }
-    $stmt = $conn->prepare("INSERT INTO nv_review (nv_novel_id, nv_review_rating, nv_review_comment, nv_review_likes, nv_user_id, nv_review_editted_at) VALUES (?, ?, ?, ?, ?, NOW())");
-    $stmt->bind_param("idsii", $novelId, $rating, $comment, $likes, $userId);
+    $stmt = $conn->prepare("INSERT INTO nv_review (nv_novel_id, nv_review_rating, nv_review_comment, nv_user_id, nv_review_editted_at) VALUES (?, ?,  ?, ?, NOW())");
+    $stmt->bind_param("idsi", $novelId, $rating, $comment, $userId);
     return $stmt->execute()
         ? ['success' => true, 'id' => $stmt->insert_id]
         : ['error' => $stmt->error];
@@ -77,7 +76,7 @@ function updateReview($conn, $data)
     $fields = [];
     $types = '';
     $values = [];
-    foreach (['nv_review_rating', 'nv_review_comment', 'nv_review_likes'] as $field) {
+    foreach (['nv_review_rating', 'nv_review_comment'] as $field) {
         if (isset($data[$field])) {
             if ($field === 'nv_review_rating') {
                 $rating = floatval($data[$field]);

@@ -28,13 +28,13 @@ echo json_encode($response);
 
 function getUsers($conn)
 {
-    $res = $conn->query("SELECT nv_user_id, nv_user_email,nv_user_username, nv_user_sub_tier, nv_user_created_date, nv_user_role FROM nv_user");
+    $res = $conn->query("SELECT nv_user_id, nv_user_email,nv_user_username, nv_user_created_date, nv_user_role FROM nv_user");
     return $res ? $res->fetch_all(MYSQLI_ASSOC) : ['error' => $conn->error];
 }
 
 function getUser($conn, $id)
 {
-    $stmt = $conn->prepare("SELECT nv_user_id, nv_user_email,nv_user_username, nv_user_sub_tier, nv_user_created_date, nv_user_role FROM nv_user WHERE nv_user_id = ?");
+    $stmt = $conn->prepare("SELECT nv_user_id, nv_user_email,nv_user_username, nv_user_created_date, nv_user_role FROM nv_user WHERE nv_user_id = ?");
     $stmt->bind_param("i", $id);
     $stmt->execute();
     return $stmt->get_result()->fetch_assoc() ?: ['error' => 'User not found'];
@@ -49,7 +49,6 @@ function createUser($conn, $data)
 
     $email = trim($data['email']);
     $role = $data['role'] ?? 'reader';
-    $tier = (int) ($data['sub_tier'] ?? 0);
     $username = $data['username'];
 
     $stmt = $conn->prepare("SELECT 1 FROM nv_user WHERE nv_user_email = ?");
@@ -61,8 +60,8 @@ function createUser($conn, $data)
     }
 
     $hashed = password_hash($data['password'], PASSWORD_DEFAULT);
-    $stmt = $conn->prepare("INSERT INTO nv_user (nv_user_email, nv_user_password, nv_user_sub_tier,nv_user_username, nv_user_role) VALUES (?, ?,?, ?, ?)");
-    $stmt->bind_param("ssiss", $email, $hashed, $tier, $username, $role);
+    $stmt = $conn->prepare("INSERT INTO nv_user (nv_user_email, nv_user_password,nv_user_username, nv_user_role) VALUES (?,?, ?, ?)");
+    $stmt->bind_param("ssss", $email, $hashed, $username, $role);
 
     return $stmt->execute()
         ? ['success' => true, 'id' => $stmt->insert_id]
@@ -79,7 +78,6 @@ function updateUser($conn, $data)
     $id = $data['id'];
     $email = trim($data['email']);
     $role = $data['role'] ?? null;
-    $tier = isset($data['sub_tier']) ? (int) $data['sub_tier'] : null;
     $username = $data['username'];
     $stmt = $conn->prepare("SELECT 1 FROM nv_user WHERE nv_user_email = ? AND nv_user_id != ?");
     $stmt->bind_param("si", $email, $id);
@@ -91,11 +89,11 @@ function updateUser($conn, $data)
 
     if (!empty($data['password'])) {
         $hashed = password_hash($data['password'], PASSWORD_DEFAULT);
-        $stmt = $conn->prepare("UPDATE nv_user SET nv_user_email = ?, nv_user_password = ?, nv_user_sub_tier = ?, nv_user_role = ?, nv_user_username = ? WHERE nv_user_id = ?");
-        $stmt->bind_param("ssisis", $email, $hashed, $tier, $role, $id, $username);
+        $stmt = $conn->prepare("UPDATE nv_user SET nv_user_email = ?, nv_user_password = ?, nv_user_role = ?, nv_user_username = ? WHERE nv_user_id = ?");
+        $stmt->bind_param("sssis", $email, $hashed, $role, $id, $username);
     } else {
-        $stmt = $conn->prepare("UPDATE nv_user SET nv_user_email = ?, nv_user_sub_tier = ?, nv_user_role = ?, nv_user_username = ? WHERE nv_user_id = ?");
-        $stmt->bind_param("sisis", $email, $tier, $role, $id, $username);
+        $stmt = $conn->prepare("UPDATE nv_user SET nv_user_email = ?, nv_user_role = ?, nv_user_username = ? WHERE nv_user_id = ?");
+        $stmt->bind_param("ssis", $email, $role, $id, $username);
     }
 
     return $stmt->execute() ? ['success' => true] : ['error' => $stmt->error];

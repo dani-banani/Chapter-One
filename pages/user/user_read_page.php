@@ -2,6 +2,14 @@
 require_once __DIR__ . '/../../paths.php';
 session_start();
 require_once HTML_HEADER;
+$userRole = "";
+
+if (isset($_SESSION['user_id'])) {
+    $userRole = 'user';
+} elseif (isset($_SESSION['author_id'])) {
+    $userRole = 'author';
+} ?>
+
 ?>
 <style>
     header {
@@ -37,13 +45,17 @@ require_once HTML_HEADER;
         border-radius: 8px;
         border: 0px;
         cursor: pointer;
-        background-color: #DB6D29;
-        color: white;
+        background-color: var(--primary-button);
+        color: black;
         text-decoration: none;
     }
 
+    #libraryBtn:hover {
+        background-color: var(--primary-button-hover);
+    }
+
     body {
-        background-color: gray;
+        background-color: var(--primary-color);
     }
 
     main {
@@ -151,7 +163,7 @@ require_once HTML_HEADER;
         top: 100px;
         position: sticky;
         align-self: flex-start;
-        background-color: #DB6D29;
+        background-color: var(--secondary-color);
         padding: 30px 10px;
         border-radius: 12px;
 
@@ -219,7 +231,7 @@ require_once HTML_HEADER;
         </a>
         <nav id="navbar-links">
             <ul>
-                <li><a>Library</a></li>
+                <li><a href="user_library.php">Library</a></li>
                 <li> <a id="libraryBtn">+ Add to Library</a></li>
             </ul>
         </nav>
@@ -260,10 +272,9 @@ require_once HTML_HEADER;
         //API Paths
         const API = {
             novel: '<?php echo NOVEL_API ?>',
-            genre: '<?php echo GENRE_API ?>',
             author: '<?php echo AUTHOR_API ?>',
-            rating: '<?php echo RATING_API ?>',
             novel_chapter: '<?php echo NOVEL_CHAPTER_API ?>',
+            library: '<?php echo LIBRARY_API ?>',
         };
 
         const contentBox = document.getElementById('content');
@@ -584,8 +595,72 @@ require_once HTML_HEADER;
             }
         }
 
+        //Get userID
+        const userID = <?php echo json_encode(($userRole == 'user') ? $_SESSION['user_id'] : null); ?>;
+
+        //Check if the user has the book in library
+        async function modifyLibraryButton() {
+            //If user is not logged in, ignore
+            if (!userID) {
+                return;
+            }
+
+            try {
+                const libraryBtn = document.getElementById('libraryBtn');
+                const requestParam = `?nv_user_id=${userID}&nv_novel_id=${novelId}`;
+                const res = await axios.get(API.library + requestParam);
+                if (!res.data.length) {
+                    libraryBtn.onclick = () => addToLibrary();
+                } else {
+                    libraryBtn.innerHTML = "Remove from Library";
+                    libraryBtn.onclick = () => deleteFromLibrary();
+                }
+
+            } catch (ex) {
+                errMessage = ex.response?.data?.error || 'Error Modifying library';
+                console.log(errMessage);
+            }
+        }
+
+        async function addToLibrary() {
+            try {
+                const requestParam = `?nv_novel_id=${novelId}`;
+                const res = await axios.post(API.library, {
+                    nv_novel_id: novelId,
+                    nv_user_id: userID,
+                });
+
+                //Reload page to get changes
+                window.location.reload();
+            } catch (ex) {
+                errMessage = ex.response?.data?.error || 'Error Adding to library';
+                console.log(errMessage);
+            }
+        }
+
+
+
+        async function deleteFromLibrary() {
+            try {
+                //Remove from library
+                const requestParam = `?nv_user_id=${userID}&nv_novel_id=${novelId}`;
+                const { data } = await axios.delete(API.library + requestParam);
+                const libraryID = data.nv_user_library_id;
+
+                //Reload page to get changes
+                window.location.reload();
+            } catch (ex) {
+                errMessage = ex.response?.data?.error || 'Error Adding to library';
+                console.log(errMessage);
+            }
+        }
+
+
+
+
         (async function main() {
             await init(); // wait until init is fully complete
+            modifyLibraryButton();
             loadChaptersToMenu();
             loadNovelDetail();
 
@@ -598,6 +673,9 @@ require_once HTML_HEADER;
                 await loadSpecificChapter(currChapter);
             }
         })();
+
+
+
     </script>
 </body>
 

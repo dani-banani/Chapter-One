@@ -5,7 +5,7 @@ require_once HTML_HEADER;
 ?>
 <style>
     main {
-        min-height: 100vh;
+        min-height: 81vh;
     }
 
     .wrapper {
@@ -56,7 +56,7 @@ require_once HTML_HEADER;
     }
 
     #libraryBackground {
-        background-color: #75A4EE;
+        background-color: #fceec6ff;
         padding: 30px;
     }
 </style>

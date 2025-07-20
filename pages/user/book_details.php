@@ -15,7 +15,7 @@ require_once HTML_HEADER;
     #novel-container {
         padding: 20px;
         margin: auto;
-        background-color: rgb(145, 203, 255);
+        background-color: #fceec6ff;
 
         .novel-wrapper {
             width: 900px;
@@ -45,8 +45,8 @@ require_once HTML_HEADER;
                 }
 
                 #novel-author {
-                    color: rgb(204, 0, 255);
-                    font-size: 18px;
+                    color: black;
+                    font-size: 24px;
                     font-weight: bold;
                 }
             }
@@ -62,9 +62,13 @@ require_once HTML_HEADER;
             }
 
             #readBtn {
-                background-color: #DB6D29;
-                color: white;
+                background-color: var(--primary-button);
+                color: black;
                 margin-right: 20px;
+            }
+
+            #readBtn:hover {
+                background-color: var(--primary-button-hover);
             }
 
             #libraryBtn,
@@ -72,6 +76,10 @@ require_once HTML_HEADER;
                 background-color: white;
             }
 
+            #libraryBtn:hover,
+            #fakeLibraryBtn:hover {
+                color: var(--primary-button-hover);
+            }
         }
     }
 
@@ -81,7 +89,7 @@ require_once HTML_HEADER;
 
 
     main {
-        min-height: 100vh;
+        min-height: 80vh;
     }
 
     #aboutBtn,
@@ -94,7 +102,7 @@ require_once HTML_HEADER;
 
     #btnSection button:hover {
         text-decoration: underline;
-        text-decoration-color: #DB6D29;
+        text-decoration-color: var(--primary-button);
     }
 
     .separator {
@@ -117,6 +125,7 @@ require_once HTML_HEADER;
         font-size: 18px;
         text-align: justify;
         line-height: 1.5;
+        margin-bottom: 25px;
     }
 
     #chapterSection {
@@ -131,6 +140,8 @@ require_once HTML_HEADER;
         height: 100px;
         word-break: break-word;
         overflow: hidden;
+        border: 1px solid black;
+        border-radius: 12px;
 
         .chapter-title {
             font-size: 24px;
@@ -142,6 +153,7 @@ require_once HTML_HEADER;
 
         .chapter-content {
             padding: 10px;
+            padding-left: 0px;
         }
 
         .chapter-content p {
@@ -154,11 +166,11 @@ require_once HTML_HEADER;
 
     .focused {
         text-decoration: underline;
-        text-decoration-color: #DB6D29;
+        text-decoration-color: var(--primary-button);
     }
 
     .chapter-container:nth-child(even) {
-        background-color: #fff1e9ff;
+        background-color: #fceec6ff;
         border-radius: 8px;
     }
 
@@ -171,11 +183,10 @@ require_once HTML_HEADER;
         display: flex;
         flex-direction: row;
         gap: 50px;
-        margin-bottom: 70px;
     }
 
     .rating-review-section {
-        margin-top: 50px;
+        margin-top: 30px;
     }
 
     #reviewForm {
@@ -201,7 +212,7 @@ require_once HTML_HEADER;
         display: grid;
         grid-template-columns: 100px auto;
         grid-template-rows: auto;
-        margin-bottom: 50px;
+        margin: 50px auto;
     }
 
     .reviewRating {
@@ -404,8 +415,6 @@ require_once HTML_HEADER;
                 return;
             }
 
-
-
             try {
                 const res = await axios.post(API.review, {
                     nv_novel_id: novelId,
@@ -414,11 +423,8 @@ require_once HTML_HEADER;
                 });
 
                 if (res.data.success) {
+                    window.location.reload();
                     alert('Review submitted successfully!');
-                    e.target.reset();
-                } else {
-                    const err = res.data.error || 'Failed to submit review.';
-                    console.log(err);
                 }
 
             } catch (err) {
@@ -623,7 +629,7 @@ require_once HTML_HEADER;
             chapterCount.innerHTML = data.length + " Published Chapters";
 
             //For each chapters in the novel, populate div section
-            if (data.length > 1) {
+            if (data.length >= 1) {
                 let counter = 1;
                 box.innerHTML = data.map(chapter => (
                     `<div class='chapter-container'>

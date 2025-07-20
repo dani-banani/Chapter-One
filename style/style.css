@@ -1,7 +1,7 @@
 :root {
     --primary-color: #9ca3af;
     --primary-color-hover: #6d7280;
-    --secondary-color: #f3f4f6;
+    --secondary-color: #ffffff;
     --primary-button: #FFC300;
     --primary-button-hover: #e6b800;
     --danger-color: #e63946;
@@ -24,7 +24,7 @@ a {
 }
 
 a:hover {
-    color: blue;
+    color: var(--primary-button-hover);
     transition: all 0.3s ease-in-out;
 }
 

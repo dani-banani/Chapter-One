@@ -4,6 +4,10 @@ require_once __DIR__ . '/../../paths.php';
 require_once HTML_HEADER;
 ?>
 <style>
+    main {
+        min-height: 80vh;
+    }
+
     .wrapper {
         margin-left: auto;
         margin-right: auto;
@@ -70,10 +74,15 @@ require_once HTML_HEADER;
             }
 
             .readBtn {
-                background-color: #DB6D29;
-                color: white;
+                background-color: var(--primary-button);
+                color: black;
                 margin-right: 20px;
             }
+
+            .readBtn:hover {
+                background-color: var(--primary-button-hover);
+            }
+
 
             .libraryBtn,
             .fakeLibraryBtn {
@@ -118,6 +127,8 @@ require_once HTML_HEADER;
                     href="<?php echo REGISTER_PAGE ?>">Register now!</a></p>
         </div>
     </div>
+
+    <?php require_once FOOTER_COMPONENT; ?>
 </body>
 
 

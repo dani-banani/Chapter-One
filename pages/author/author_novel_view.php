@@ -4,7 +4,7 @@ require_once HTML_HEADER;
 ?>
 <link rel="stylesheet" href="/chapter-one/style/table.css" type="text/css">
 <style>
-    body{
+    body {
         display: flex;
         flex-direction: column;
         min-height: 100vh;
@@ -49,6 +49,18 @@ require_once HTML_HEADER;
                 font-style: italic;
                 color: gray;
             }
+        }
+
+        #novel-img {
+            grid-column: 1/2;
+            background-color: black;
+            height: 250px;
+            width: 200px;
+            padding: 10px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .chapter-actions {
@@ -354,8 +366,8 @@ require_once HTML_HEADER;
         </div>
         <div class="container">
             <div class="novel-overview">
-                <div class="novel-cover">
-                    <img src="https://picsum.photos/200/300" alt="">
+                <div id='novel-img'>
+                    <img src='../img/question.png' alt="novel cover" />
                 </div>
                 <div class="novel-data">
                     <div>
